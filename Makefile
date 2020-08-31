@@ -1,9 +1,12 @@
 #Defines the directory runtime will look for packages and resources
-flags=-cp "target:src/main/resources:src/test/resources"
 
 #For convinience
-compile=javac $(flags)
-run=java $(flags)
+compile=javac -d target
+run=java -cp "target:src/main/resources:src/test/resources"
 
-all:
-	@echo $(run)
+
+server: compile_server
+	$(run) main.java.server.AggregationServer $(port)
+
+compile_server: src/main/java/server/*.java
+	$(compile) $?

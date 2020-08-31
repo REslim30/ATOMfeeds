@@ -1,4 +1,6 @@
 
 Notes:
 - HTTP/1.1 (RFC 7230)
-    - Two Options: Persistent / Non-persistance
+    - Two Options: Non-persistent
+    - Array of strings.
+    - Handles concurrent requests
