@@ -3,6 +3,7 @@ package main.java.client;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import main.java.http.*;
 
 
 public class GETClient {
@@ -79,7 +80,7 @@ public class GETClient {
     private static void sendRequest(PrintWriter out, String hostName) {
             out.print("GET / HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
-            out.print("Connection: close\r\n");
+            out.print("Connection: keep-alive\r\n");
             out.print("Cache-Control: no-cache\r\n");
             out.print("\r\n");
             out.flush();
@@ -90,10 +91,11 @@ public class GETClient {
     //Returns false if server 
     //wants to close connection
     private static boolean receiveResponse(BufferedReader in) {
-        try {
-        } catch (IOException e) {
-            System.err.println("Error in receiving response.:");
-            System.err.println(e.toString());
-        }
+        HTTPResponseReader response = new HTTPResponseReader(in);
+        response.readResponse();
+        System.out.println(response.getBody());
+
+        String connection = response.getHeader("Connection");
+        return (connection == null || connection.equals("keep-alive"));
     }
 }
