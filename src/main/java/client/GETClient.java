@@ -52,6 +52,11 @@ public class GETClient {
                             System.out.println("closing the connection");
                             return;
                         case "1":
+                            //If server has closed the connection
+                            //Exit function
+                            if (out.checkError()) 
+                                return;
+                            
                             System.out.println("Sending Get request");
                             sendRequest(out, hostName);
 
@@ -72,12 +77,12 @@ public class GETClient {
 
     //Sends a basic HTTP request
     private static void sendRequest(PrintWriter out, String hostName) {
-        out.print("GET / HTTP/1.1\r\n");
-        out.print("Host: " + hostName + "\r\n");
-        out.print("Connection: keep-alive\r\n");
-        out.print("Cache-Control: no-cache\r\n");
-        out.print("\r\n");
-        out.flush();
+            out.print("GET / HTTP/1.1\r\n");
+            out.print("Host: " + hostName + "\r\n");
+            out.print("Connection: close\r\n");
+            out.print("Cache-Control: no-cache\r\n");
+            out.print("\r\n");
+            out.flush();
     }
 
     //Receives the response
@@ -86,14 +91,9 @@ public class GETClient {
     //wants to close connection
     private static boolean receiveResponse(BufferedReader in) {
         try {
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
-            }
         } catch (IOException e) {
             System.err.println("Error in receiving response.:");
             System.err.println(e.toString());
         }
-        return true;
     }
 }

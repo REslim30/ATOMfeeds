@@ -5,7 +5,7 @@ compile=javac -d target
 run=java -cp "target:src/main/resources:src/test/resources"
 
 client: compile_client
-	$(run) main.java.client.GETClient localhost 3000
+	$(run) main.java.client.GETClient $(host) $(port)
 
 compile_client: src/main/java/client/*java 
 	$(compile) $?
