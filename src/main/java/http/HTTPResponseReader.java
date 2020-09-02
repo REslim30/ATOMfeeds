@@ -9,9 +9,9 @@ public class HTTPResponseReader {
     private BufferedReader in;
 
     //HTTP response fields
-    String statusLine[];
-    HashMap<String, String> headers;
-    String body;
+    private String statusLine[];
+    private HashMap<String, String> headers;
+    private String body;
     public HTTPResponseReader(BufferedReader in) {
         this.in = in;
         headers = new HashMap<String, String>();
@@ -34,13 +34,13 @@ public class HTTPResponseReader {
         String inputLine = in.readLine();
         statusLine = inputLine.split(" ");
         if (statusLine.length != 3) 
-            throw new IOException("Status line should have 3 segments. Current Status line: " + inputLine);
+            throw new RuntimeException("Status line should have 3 segments. Current Status line: " + inputLine);
 
         if (!statusLine[0].matches("^HTTP.*")) 
-            throw new IOException("Unknown protocol:" + statusLine[0]);
+            throw new RuntimeException("Unknown protocol:" + statusLine[0]);
 
         if (!statusLine[1].matches("\\d\\d\\d"))
-            throw new IOException("Unknown status code: " + statusLine[1]);
+            throw new RuntimeException("Unknown status code: " + statusLine[1]);
     }
 
     //Parses the header fields of the response
