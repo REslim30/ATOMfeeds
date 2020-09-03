@@ -10,14 +10,16 @@ public class GETClient {
     public static void main(String[] args) {
                 
         //Parse hostname and port number
-        if (args.length != 2) {
+        if (args.length != 1) {
             System.err.println(
-                "Usage: java GETClient <host name> <port number>");
+                "Usage: java GETClient <host name>:<port number>");
             System.exit(1);
         }
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
 
+        //TODO: Show user error when hostName/PortNumber is invalild
+        URL url = URLParser.parseURL(args[0]);
+        String hostName = url.getHost();
+        int portNumber = url.getPort();
 
         //Connect to host
         System.out.println("Connecting to:" + hostName + ':' + portNumber);
@@ -43,45 +45,45 @@ public class GETClient {
     //Enters a persistent connection with the host
     //Allows user various actions
     private static void enterConnection(BufferedReader in, PrintWriter out, String hostName) {
-            try (Scanner stdIn = new Scanner(System.in)) {
-                while (true) {
-                    System.out.println("\nPlease enter:");
-                    System.out.println("0    - to close the connection");
-                    System.out.println("1    - to send a GET request");
-                    switch(stdIn.nextLine()) {
-                        case "0":
-                            System.out.println("closing the connection");
+        try (Scanner stdIn = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("\nPlease enter:");
+                System.out.println("0    - to close the connection");
+                System.out.println("1    - to send a GET request");
+                switch(stdIn.nextLine()) {
+                    case "0":
+                        System.out.println("closing the connection");
+                        return;
+                    case "1":
+                        //If server has closed the connection
+                        //Exit function
+                        if (out.checkError()) 
                             return;
-                        case "1":
-                            //If server has closed the connection
-                            //Exit function
-                            if (out.checkError()) 
-                                return;
-                            
-                            System.out.println("Sending Get request");
-                            sendRequest(out, hostName);
+                        
+                        System.out.println("Sending Get request");
+                        sendRequest(out, hostName);
 
-                            System.out.println("Server sent back:");
-                            if (!receiveResponse(in)) {
-                                System.out.println("Server wants to close connection");
-                                System.out.println("closing connection");
-                                return;
-                            }
-                            break;
-                        default:
-                            System.out.println("Invalid Input");
-                            break;
-                    }
+                        System.out.println("Server sent back:");
+                        if (!receiveResponse(in)) {
+                            System.out.println("Server wants to close connection");
+                            System.out.println("closing connection");
+                            return;
+                        }
+                        break;
+                    default:
+                        System.out.println("Invalid Input");
+                        break;
                 }
             }
+        }
     }
 
     //Sends a basic HTTP request
     private static void sendRequest(PrintWriter out, String hostName) {
             out.print("GET / HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
+            out.print("User-Agent: ATOMGETClient/1/0\r\n");
             out.print("Connection: keep-alive\r\n");
-            out.print("Cache-Control: no-cache\r\n");
             out.print("\r\n");
             out.flush();
     }
