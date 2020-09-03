@@ -11,7 +11,7 @@ public class ContentServer {
         //Parse hostname and port number
         if (args.length != 2) {
             System.err.println(
-                "Usage: java ContentServer <host name:port number> <file name>");
+                "Usage: java ContentServer <host name>:<port number> <file name>");
             System.exit(1);
         }
 
