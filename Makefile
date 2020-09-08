@@ -27,8 +27,8 @@ compile_client: src/main/java/client/*java compile_http
 server: compile_server
 	$(run) main.java.server.AggregationServer $(port)
 
-compile_server: src/main/java/server/*.java
-	$(compile) $?
+compile_server: src/main/java/server/*.java compile_http
+	$(compile) src/main/java/server/*java
 
 
 #HTTP helpers
