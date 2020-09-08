@@ -1,18 +1,17 @@
-package main.java.client;
+package main.java.content;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.lang.System;
 import main.java.http.*;
 
-
-public class GETClient {
+public class ContentServer {
     public static void main(String[] args) {
-                
         //Parse hostname and port number
-        if (args.length != 1) {
+        if (args.length != 2) {
             System.err.println(
-                "Usage: java GETClient <host name>:<port number>");
+                "Usage: java ContentServer <host name>:<port number> <file name>");
             System.exit(1);
         }
 
@@ -20,6 +19,7 @@ public class GETClient {
         URL url = URLParser.parseURL(args[0]);
         String hostName = url.getHost();
         int portNumber = url.getPort();
+        String fileName = args[1];
 
         //Connect to host
         System.out.println("Connecting to:" + hostName + ':' + portNumber);
@@ -31,7 +31,7 @@ public class GETClient {
                 new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
         ) {
-            enterConnection(in, out, hostName);
+            enterConnection(in, out, hostName, fileName);
         } catch (UnknownHostException e) {
             System.err.println("Don't know about host " + hostName);
             System.exit(1);
@@ -40,16 +40,16 @@ public class GETClient {
                 hostName);
             System.exit(1);
         } 
-    }
+    }    
 
     //Enters a persistent connection with the host
     //Allows user various actions
-    private static void enterConnection(BufferedReader in, PrintWriter out, String hostName) {
+    private static void enterConnection(BufferedReader in, PrintWriter out, String hostName, String fileName) {
         try (Scanner stdIn = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\nPlease enter:");
                 System.out.println("0    - to close the connection");
-                System.out.println("1    - to send a GET request");
+                System.out.println("1    - to send a PUT request");
                 switch(stdIn.nextLine()) {
                     case "0":
                         System.out.println("closing the connection");
@@ -60,8 +60,8 @@ public class GETClient {
                         if (out.checkError()) 
                             return;
                         
-                        System.out.println("Sending Get request");
-                        sendRequest(out, hostName);
+                        System.out.println("Sending PUT request");
+                        sendRequest(out, hostName, fileName);
 
                         System.out.println("Server sent back:");
                         if (!receiveResponse(in)) {
@@ -79,23 +79,47 @@ public class GETClient {
     }
 
     //Sends a basic HTTP request
-    private static void sendRequest(PrintWriter out, String hostName) {
-            out.print("GET / HTTP/1.1\r\n");
+    private static void sendRequest(PrintWriter out, String hostName, String fileName) {
+        //First read in a file
+        try (BufferedReader file = new BufferedReader(
+                                        new InputStreamReader(
+                                            ClassLoader.getSystemClassLoader()
+                                                .getResourceAsStream(fileName)))) {
+            String line;
+            StringBuilder bodyBuilder = new StringBuilder();
+            while ((line = file.readLine()) != null)  {
+               bodyBuilder.append(line); 
+               bodyBuilder.append('\n');
+            }
+            String body = bodyBuilder.toString();
+            
+            //Send the request
+            out.print("PUT /atom.xml HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
-            out.print("User-Agent: ATOMGETClient/1/0\r\n");
+            out.print("User-Agent: ATOMClient/1/0\r\n");
             out.print("Connection: keep-alive\r\n");
+            out.print("Content-Type: application/atom+xml" + "\r\n");
+            out.print("Content-Length: " + Integer.toString(body.length()) + "\r\n");
             out.print("\r\n");
+            out.print(body);
             out.flush();
+            
+        } catch (FileNotFoundException e) {
+            System.err.println("Couldn't find the file you suggested: " + fileName + "\n" + e.toString());
+            System.exit(1);
+        } catch (IOException ioe) {
+            System.err.println("Error in reading file: " + ioe.toString());
+        }
     }
 
-    //Receives the response
-    //And prints to stdin
-    //Returns false if server 
-    //wants to close connection
+    //Receive the response
+    //Print relevant information to stdin
+    //Returns false if server wants to end the connection
     private static boolean receiveResponse(BufferedReader in) {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
-        System.out.println(response.getBody());
+        System.out.println("Server responds with: " + response.getStatusCode() + " " + response.getStatusMsg());
+        System.out.println("Body: " + response.getBody());
 
         String connection = response.getHeader("Connection");
         return (connection == null || connection.equals("keep-alive"));
