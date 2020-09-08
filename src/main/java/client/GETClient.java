@@ -8,7 +8,7 @@ import main.java.http.*;
 
 public class GETClient {
     public static void main(String[] args) {
-                
+        
         //Parse hostname and port number
         if (args.length != 1) {
             System.err.println(

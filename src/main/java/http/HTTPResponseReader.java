@@ -16,8 +16,8 @@ public class HTTPResponseReader {
         this.in = in;
         headers = new HashMap<String, String>();
     }
-
     public void readResponse() {
+
         try {
             parseStatusLine();
             parseHeaders();
