@@ -5,32 +5,49 @@ class_flag=-cp "target:src/main/resources:src/test/resources"
 compile=javac $(class_flag) -d target
 run=java $(class_flag)
 
-#TODO: Perform basic commandline argument checks
-
 #ContentServer
 content: compile_content
-	$(run) main.java.content.ContentServer $(url) $(file)
-
-compile_content: src/main/java/content/*java compile_http
-	$(compile) src/main/java/content/*java
-
+ifeq ($(and $(url),$(file)),)
+	@echo
+	@echo "Usage: make content url=<url> file=<file_name>"
+	@echo "<url>: <host_name>:<port_number>"
+	@echo
+else
+	@$(run) main.java.content.ContentServer $(url) $(file)
+endif
 
 #GETClient
 client: compile_client
-	$(run) main.java.client.GETClient $(host) $(port)
-
-compile_client: src/main/java/client/*java compile_http
-	$(compile) src/main/java/client/*java
-
+ifeq ($(url),)
+	@echo
+	@echo "Usage: make client url=<url>"
+	@echo "<url>: <host_name>:<port_number>"
+	@echo
+else
+	$(run) main.java.client.GETClient $(url)
+endif
 
 #AggregationServer
 server: compile_server
-	$(run) main.java.server.AggregationServer $(port)
+ifeq ($(port),)
+	@echo
+	@echo "Usage: make server port=<port_number>"
+	@echo "if <port_number> is left empty, then port is set to 4567"
+	@echo
+endif
+	@$(run) main.java.server.AggregationServer $(port)
+
+
+#***Compliation
+compile_client: src/main/java/client/*java compile_http
+	@$(compile) src/main/java/client/*java
+
+compile_content: src/main/java/content/*java compile_http
+	@$(compile) src/main/java/content/*java
 
 compile_server: src/main/java/server/*.java compile_http
-	$(compile) src/main/java/server/*java
-
+	@$(compile) src/main/java/server/*java
 
 #HTTP helpers
 compile_http: src/main/java/http/*.java
-	$(compile) $?
+	@$(compile) $?
