@@ -3,6 +3,8 @@ package main.java.http;
 import java.net.URL;
 import java.net.MalformedURLException;
 
+
+
 //Class that holds URL parsing methods
 public class URLParser {
     //Don't want anyone to instantiate this class
