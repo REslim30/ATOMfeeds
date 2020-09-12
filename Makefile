@@ -1,10 +1,10 @@
 #Defines the directory runtime will look for packages and resources
-
 #For convinience
 class_flag=-cp "target:src/main/resources:src/test/resources"
 compile=javac $(class_flag) -d target
 run=java $(class_flag)
 
+#*** Main Processes ***
 #ContentServer
 content: compile_content
 ifeq ($(and $(url),$(file)),)
@@ -36,6 +36,18 @@ ifeq ($(port),)
 	@echo
 endif
 	@$(run) main.java.server.AggregationServer $(port)
+
+
+#*** Tests ***
+test_class_flag=-cp "target:src/main/resources:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar"
+compile_test=javac $(test_class_flag) -d target
+run_test=java $(test_class_flag) org.junit.runner.JUnitCore
+
+test_http: compile_test_http
+	$(run_test) test.java.http.URLParserTest
+
+compile_test_http: compile_http src/test/java/http/*.java
+	$(compile_test) src/test/java/http/*.java
 
 
 #***Compliation
