@@ -36,6 +36,63 @@ public class AggregationStorageManagerTest {
         AggregationStorageManager.save(12,12,"");
     }
 
+    @Test
+    public void retrievesOneFile() throws IOException {
+        AggregationStorageManager.save(12, 324138, "test body");
+        assertEquals("test body", AggregationStorageManager.retrieve(12, 324138));
+    }
+
+    @Test
+    public void retrievesEmptyIfLamportClockLess() throws IOException {
+        AggregationStorageManager.save(12, 324138, "test body");
+        assertEquals("", AggregationStorageManager.retrieve(11, 2394234)); 
+    }
+
+    @Test
+    public void retrievesEmptyIfLamportClockEqualButConnectionIdLess() throws IOException {
+        AggregationStorageManager.save(1000, 324138, "test body");
+        assertEquals("", AggregationStorageManager.retrieve(1000, 300)); 
+    }
+
+    @Test
+    public void retrievesIfLamportClockEqualButConnectionIdGreater() throws IOException {
+        AggregationStorageManager.save(1000, 324138, "test body");
+        assertEquals("test body", AggregationStorageManager.retrieve(1000, 400000)); 
+    }
+
+    @Test
+    public void retrievesIfLamportClockEqualAndConnectionIdEqual() throws IOException {
+        AggregationStorageManager.save(1000, 400000, "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work");
+        assertEquals("test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work", AggregationStorageManager.retrieve(1000, 400000)); 
+    }
+
+    @Test
+    public void retrievesTwo() throws IOException {
+        String s1 =  "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work";
+        String s2 =  "very specific string";
+        AggregationStorageManager.save(1000, 400000, s1);
+        AggregationStorageManager.save(1500, 400000, s2);
+
+        String body = AggregationStorageManager.retrieve(2000, 0);
+        System.out.println(body);
+        assertEquals(true, body.contains(s1));
+        assertEquals(true, body.contains(s2));
+        assertEquals(s1.length() + s2.length() + 2, body.length());
+    }
+
+    @Test
+    public void saveTwoRetrievesOneIfLamportClockLess() throws IOException {
+        String s1 =  "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work";
+        String s2 =  "very specific string";
+        AggregationStorageManager.save(1000, 400000, s1);
+        AggregationStorageManager.save(1500, 400000, s2);
+
+        String body = AggregationStorageManager.retrieve(1250, 40000);
+        assertEquals(true, body.contains(s1));
+        assertEquals(false, body.contains(s2));
+        assertEquals(s1.length(), body.length());
+    }
+
     @After
     public void purgeServerDirectory() {
         purgeDirectory(serverResources.toFile());
