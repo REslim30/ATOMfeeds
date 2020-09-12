@@ -15,12 +15,13 @@ public class HTTPResponseWriter {
         this.out = out;
     }
     
-    public void writeResponse(int statusCode, String body) {
+    public void writeResponse(int statusCode, String body, long lamportClock) {
         out.print("HTTP/1.1 " + Integer.toString(statusCode) + " " + getStatusMsg(statusCode) + "\r\n"); 
         out.print("Content-Type: application/atom+xml" + "\r\n");
         out.print("Content-Length: " + Integer.toString(body.length()) + "\r\n");
         out.print("Charset: utf-8" + "\r\n");
-        out.print("Connection: close" + "\r\n");
+        out.print("Lamport-Clock: " + Long.toString(lamportClock) + "\r\n");
+        out.print("Connection: keep-alive" + "\r\n");
         out.print("\r\n");
         out.print(body);
         out.flush();

@@ -3,9 +3,9 @@ package main.java.server;
 
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.*;
 
 public class AggregationServer { 
+    private static LamportClock lamportClock = new LamportClock(0);
     public static void main(String[] args) {
 
         //Parse hostname and port number
@@ -24,7 +24,7 @@ public class AggregationServer {
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
             //Starts an AggregationResponderThread
             while (true) {
-                new AggregationResponderThread(serverSocket.accept(), connectionId++).start();
+                new AggregationResponderThread(serverSocket.accept(), connectionId++, lamportClock).start();
             }
         } catch (IOException e) {
             System.err.println("Could not listen on port " + portNumber);
