@@ -5,6 +5,8 @@ Notes:
     - Array of strings.
     - Handles concurrent requests
 
+### Notes on Running
+    - All processes should be run from the main parent directory. (Where this README.md is located)
 
 ### Notes on Lamport Clocks
     - In order to choose between equal lamport clock values
@@ -17,8 +19,8 @@ Notes:
 
 ### File System
     - ATOM files are stored on the system are named in a special format:
-        <lamport-clock>_<connection-id>.txt
+        <lamport-clock>_<connection-id>.xml
     where <lamport-clock> is the lamport clock value of the PUT request,
     and <connection-id> is the connection_id of the connection. This allows
-    the server maintain logical ordering. 
+    the server to maintain logical ordering
     

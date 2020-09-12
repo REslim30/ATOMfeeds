@@ -49,8 +49,15 @@ test_http: compile_test_http
 compile_test_http: compile_http src/test/java/http/*.java
 	$(compile_test) src/test/java/http/*.java
 
+test_server: compile_test_server
+	$(run_test) test.java.server.AggregationStorageManagerTest
 
-#***Compliation
+compile_test_server: compile_server src/test/java/server/*.java
+	$(compile_test) src/test/java/server/*.java
+
+
+
+#***Compliation***
 compile_client: src/main/java/client/*java compile_http
 	@$(compile) src/main/java/client/*java
 
