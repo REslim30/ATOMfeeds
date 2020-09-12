@@ -45,6 +45,7 @@ run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
 test_http: compile_test_http
 	$(run_test) test.java.http.URLParserTest
+	$(run_test) test.java.http.HTTPResponseWriterTest
 
 compile_test_http: compile_http src/test/java/http/*.java
 	$(compile_test) src/test/java/http/*.java

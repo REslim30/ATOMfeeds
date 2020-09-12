@@ -3,6 +3,7 @@ package main.java.server;
 import java.net.*;
 import java.io.*;
 import main.java.http.HTTPRequestReader;
+import main.java.http.HTTPResponseWriter;
 //import java.util.concurrent.*;
 
 /**
@@ -22,44 +23,82 @@ public class AggregationResponderThread extends Thread {
     public void run() {
         System.err.println("AggregationResponderThread has started");
         //Reads the request
-        HTTPRequestReader request = null;
+        HTTPRequestReader reader = null;
+        HTTPResponseWriter writer = null;
         try (
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(
                     socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream());
         ) {
-            request = new HTTPRequestReader(in);
-            request.readRequest();
+            reader = new HTTPRequestReader(in);
+            reader.readRequest();
+            writer = new HTTPResponseWriter(out);
+
+            respond(reader, writer);
         } catch (IOException e) {
             System.err.println("AggregationResponderThread: Error while reading in request: " + e.toString());
         }
 
-        //If there's no lamport clock value, send a bad request message
-        if (request.getHeader("lamport-clock") == null) {
-            //TODO - Send a bad request message
-            System.err.println("Request had no lamport-clock ending connection");
-            System.exit(1);
-        }
-
-        //Handle GET and PUT requests
-        if (request.getMethod() == "GET") {
-            handleGET(request);
-        } else if (request.getMethod() == "PUT")  {
-            handlePUT(request);
-        } else {
-            //TODO - Send a method unimplemented
-            System.err.println("Method unimplemented");
-            System.exit(0);
-        }
         
         System.out.println("AggregationResponderThread has ended");
     }
 
-    private void handleGET(HTTPRequestReader request) {
-        
+    //Responds to peer depending on GET or PUT request
+    private void respond(HTTPRequestReader reader, HTTPResponseWriter writer) {
+        //Return bad response if unimplemented methods
+        if (!reader.getMethod().equals("GET") && !reader.getMethod().equals("PUT")) {
+            writer.writeResponse(400, "Only GET and PUT is implemented on this server");
+            System.out.println("Received unimplmented method.");
+            return;
+        }
+
+        //If there's no lamport clock value, send a bad request message
+        if (reader.getHeader("lamport-clock") == null) {
+            writer.writeResponse(400, "You must include a lamport-clock header inside your request");
+            System.out.println("Received message without lamport-clock value");
+            return;
+        }
+
+        //Handle GET and PUT requests
+        if (reader.getMethod().equals("GET")) {
+            handleGET(reader, writer);
+        } else {
+            handlePUT(reader, writer);
+        }     
+
+    }
+    
+
+    //Sends a response for a GET request
+    private void handleGET(HTTPRequestReader reader, HTTPResponseWriter writer) {
+        if (reader.getURL().equals("/")) {
+            writer.writeResponse(404, "GET resource does not exist. Only resource available is '/'");
+            return;
+        }
+
+        //TODO: Create retrieval method
+        writer.writeResponse(200, "looks okay.");
     }
 
-    private void handlePUT(HTTPRequestReader request) {
-        
+    //Sends a response for a PUT request
+    private void handlePUT(HTTPRequestReader reader, HTTPResponseWriter writer) {
+        if (reader.getURL().equals("/atom.xml")) {
+            writer.writeResponse(404, "PUT resource does not exist. Only resource available is '/atom.xml'");
+            return;
+        }
+
+        if (reader.getHeader("Content-Length") == null) {
+            writer.writeResponse(411, "Content-Length header missing.");
+            return;
+        }
+
+        if (reader.getHeader("Content-Length").equals("0")) {
+            writer.writeResponse(204, "Body is empty. Did nothing");
+            return;
+        }
+
+        //TODO: Create saving method
+        writer.writeResponse(200, "looks okay.");
     }
 }
