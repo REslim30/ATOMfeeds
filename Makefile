@@ -1,6 +1,6 @@
 #Defines the directory runtime will look for packages and resources
 #For convinience
-class_flag=-cp "target:src/main/resources:src/test/resources"
+class_flag=-cp "target:src/main/resources:src/test/resources:target/sqlite-jdbc-3.32.3.2.jar"
 compile=javac $(class_flag) -d target
 run=java $(class_flag)
 
@@ -39,7 +39,7 @@ endif
 
 
 #*** Tests ***
-test_class_flag=-cp "target:src/main/resources:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar"
+test_class_flag=-cp "target:src/main/resources:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar"
 compile_test=javac $(test_class_flag) -d target
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
@@ -48,13 +48,13 @@ test_http: compile_test_http
 	$(run_test) test.java.http.HTTPResponseWriterTest
 
 compile_test_http: compile_http src/test/java/http/*.java
-	$(compile_test) src/test/java/http/*.java
+	@$(compile_test) src/test/java/http/*.java
 
 test_server: compile_test_server
 	$(run_test) test.java.server.AggregationStorageManagerTest
 
 compile_test_server: compile_server src/test/java/server/*.java
-	$(compile_test) src/test/java/server/*.java
+	@$(compile_test) src/test/java/server/*.java
 
 
 

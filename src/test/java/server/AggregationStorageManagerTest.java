@@ -9,103 +9,31 @@ import java.net.URL;
 import java.nio.file.*;
 import java.io.*;
 
+import java.sql.*;
+
 /**
  * AggregationStorageManagerTest
  */
 public class AggregationStorageManagerTest {
-    private final static Path serverResources = new File("src/main/resources/server").toPath();
+    private final static String file = new File("src/main/resources/server/aggregation.db").getAbsolutePath().toString();
 
     @Test
-    public void savesOneFile() throws IOException {
-        AggregationStorageManager.save(0,"body text");
-        boolean resourceExists= serverResourceMatches("0.xml", "body text");
-        assertEquals(true, resourceExists);
-    }
-
-    @Test
-    public void savesTwoFiles() throws IOException {
-        AggregationStorageManager.save(129038410,"crazy flkjasdl;fkjasd;flkjadsfasdl;fkjasl;df\nslkfjsldka\nfjdf");
-        assertEquals(true, serverResourceMatches("129038410.xml", "crazy flkjasdl;fkjasd;flkjadsfasdl;fkjasl;df\nslkfjsldka\nfjdf"));
-        AggregationStorageManager.save(129038420,"afjoinrqwerqw.ermn,.fasdf\nasldkfjas;ldkfj\nasdkjfa;lskdf\n");
-        assertEquals(true, serverResourceMatches("129038420.xml", "afjoinrqwerqw.ermn,.fasdf\nasldkfjas;ldkfj\nasdkjfa;lskdf\n"));
-    }
-
-    @Test(expected = IOException.class)
-    public void throwsExceptionIfDuplicateName() throws IOException {
-        AggregationStorageManager.save(12,"");
-        AggregationStorageManager.save(12,"");
-    }
-
-    @Test
-    public void retrievesOneFile() throws IOException {
-        AggregationStorageManager.save(12, "test body");
-        assertEquals("test body", AggregationStorageManager.retrieve(12));
-    }
-
-    @Test
-    public void retrievesEmptyIfLamportClockLess() throws IOException {
-        AggregationStorageManager.save(12, "test body");
-        assertEquals("", AggregationStorageManager.retrieve(11)); 
-    }
-
-    @Test
-    public void retrievesIfLamportClockEqual() throws IOException {
-        AggregationStorageManager.save(1000, "test body");
-        assertEquals("test body", AggregationStorageManager.retrieve(1000)); 
-    }
-
-    @Test
-    public void retrievesTwo() throws IOException {
-        String s1 =  "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work";
-        String s2 =  "very specific string";
-        AggregationStorageManager.save(1000,  s1);
-        AggregationStorageManager.save(1500,  s2);
-
-        String body = AggregationStorageManager.retrieve(2000);
-        System.out.println(body);
-        assertEquals(true, body.contains(s1));
-        assertEquals(true, body.contains(s2));
-        assertEquals(s1.length() + s2.length() + 2, body.length());
-    }
-
-    @Test
-    public void saveTwoRetrievesOneIfLamportClockLess() throws IOException {
-        String s1 =  "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work";
-        String s2 =  "very specific string";
-        AggregationStorageManager.save(1000, s1);
-        AggregationStorageManager.save(1500, s2);
-
-        String body = AggregationStorageManager.retrieve(1250);
-        assertEquals(true, body.contains(s1));
-        assertEquals(false, body.contains(s2));
-        assertEquals(s1.length(), body.length());
+    public void savesOneFeed() throws SQLException {
+        AggregationStorageManager.save("128.128.1.2:3000", "testing");
     }
 
     @After
-    public void purgeServerDirectory() {
-        purgeDirectory(serverResources.toFile());
+    public void clearsTable() throws SQLException {
+        Statement statement = getConnection();
+
+        statement.executeUpdate("DELETE FROM feeds");
     }
 
-
-    private boolean serverResourceMatches(String fileName, String body) {
-        Path fullPath = Paths.get(serverResources.toString(), "/",fileName);
-        if (!Files.exists(fullPath)) 
-            return false;
-
-        try {
-            return body.equals(new String(Files.readAllBytes(fullPath)));
-        } catch (Exception e) {
-            System.err.println("serverResourceMatches error: " + e.toString());
-            System.exit(0);
-        }
-        return false;
-    }
-
-    private void purgeDirectory(File dir) {
-        for (File file: dir.listFiles()) {
-            if (file.isDirectory())
-                purgeDirectory(file);
-            file.delete();
-        }
+    private Statement getConnection() throws SQLException {
+        Connection connection = null;
+        connection = DriverManager.getConnection("jdbc:sqlite:" + file);
+        Statement statement = connection.createStatement();
+        statement.setQueryTimeout(30);
+        return statement;
     }
 }

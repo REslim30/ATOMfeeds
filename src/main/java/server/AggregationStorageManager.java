@@ -2,6 +2,9 @@ package main.java.server;
 
 import java.nio.file.*;
 import java.io.*;
+import java.util.Date;
+
+import java.sql.*;
 
 /**
  * AggregationStorageManager
@@ -10,35 +13,33 @@ public class AggregationStorageManager {
     //where server places all the files.
     //Assumes java is being called within the
     //topmost parent directory
-    private final static Path serverResources = new File("src/main/resources/server").toPath();
+    private final static String file = new File("src/main/resources/server/aggregation.db").getAbsolutePath().toString();
+    
 
-    //Saves feed in a file of the following format:
-    //<lamportClock>.xml
-    public static synchronized void save(long lamportClock, String body) throws IOException {
-        String fileName = Long.toString(lamportClock)  + ".xml";
-        Files.write(Paths.get(serverResources.toString(), "/", fileName), body.getBytes(), StandardOpenOption.CREATE_NEW); 
+    public static synchronized void saveFeed(String ipPort, String body) throws SQLException {
+        Connection connection = null;
+        // create a database connection
+        connection = DriverManager.getConnection("jdbc:sqlite:" + file);
+        Statement statement = connection.createStatement();
+        statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+
+        //First checks if row exists
+        ResultSet result = statement.executeQuery("SELECT * FROM feeds WHERE ip_port='" + ipPort + "'");
+        String curTime = Long.toString((new Date()).getTime());
+        //Then updates/inserts new feed
+        if (result.next()) {
+            statement.executeUpdate("UPDATE feeds SET body = '" + body + "', date=" + curTime + " WHERE ip_port='" + ipPort + "'");
+        } else {
+            statement.executeUpdate("INSERT into feeds values('" + ipPort + "'," + curTime + ",'" + body + "')"); 
+        }
+
+        if (connection != null)
+            connection.close();
+        
     }
 
-    //Aggregrates all feeds that were saved before caller (in terms of lamport clocks)
-    //Returns feeds in a single String delimited by \r\n
-    //Assumes files are formatted: <lamportClock>.xml
-    public static synchronized String retrieve(long lamportClock) throws IOException {
-        File serverResourcesDir = serverResources.toFile();
-        StringBuilder bodyBuilder = new StringBuilder();
-
-        for (File file: serverResourcesDir.listFiles()) {
-            //Gets lamport clock values
-            String fileName = file.getName();
-            long fileLamportClock = Long.parseLong(fileName.substring(0,fileName.indexOf('.')));
-
-            if (lamportClock < fileLamportClock)
-                continue;
-
-            if (!(bodyBuilder.length() == 0)) 
-                bodyBuilder.append("\r\n");
-
-            bodyBuilder.append(Files.readString(file.toPath()));
-        }
-        return bodyBuilder.toString();
+    public static synchronized String retrieveAllFeeds(long lamportClock) {
+        return "";
     }
 }

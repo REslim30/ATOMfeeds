@@ -102,16 +102,16 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-        //Aggregate Feeds and send them to GET client
-        try {
-            String body = AggregationStorageManager.retrieve(lamportClock.incrementAndGet());
-            writer.writeResponse(200, body, lamportClock.incrementAndGet());
-            System.out.println("Retrieved feeds for GET client");
-        } catch (IOException e) {
-            writer.writeResponse(500, "Server couldn't retrieve the feeds: " + e.toString(), lamportClock.incrementAndGet());
-            System.out.println("Couldn't retrieve feeds for GET client: " + e.toString());
-            e.printStackTrace();
-        }
+        //TODO: Aggregate Feeds and send them to GET client
+        // try {
+        //     String body = AggregationStorageManager.retrieve(lamportClock.incrementAndGet());
+        //     writer.writeResponse(200, body, lamportClock.incrementAndGet());
+        //     System.out.println("Retrieved feeds for GET client");
+        // } catch (IOException e) {
+        //     writer.writeResponse(500, "Server couldn't retrieve the feeds: " + e.toString(), lamportClock.incrementAndGet());
+        //     System.out.println("Couldn't retrieve feeds for GET client: " + e.toString());
+        //     e.printStackTrace();
+        // }
     }
 
     //Sends a response for a PUT request
@@ -131,20 +131,21 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
+        //TODO
         //Save the feed within the PUT requets
-        try {
-            AggregationStorageManager.save(lamportClock.incrementAndGet(), reader.getBody());
-            if (isNew) {
-                writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
-                isNew = false;
-            } else {
-                writer.writeResponse(200, "Updated new feed", lamportClock.incrementAndGet());
-            }
-            System.out.println("Saved a feed");
-        } catch (IOException e) {
-            writer.writeResponse(500, "Server Couldn't save your feed" + e.toString(), lamportClock.incrementAndGet());
-            System.out.println("Error while trying to save a feed: " + e.toString());
-            e.printStackTrace();
-        }
+        // try {
+        //     AggregationStorageManager.save(lamportClock.incrementAndGet(), reader.getBody());
+        //     if (isNew) {
+        //         writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
+        //         isNew = false;
+        //     } else {
+        //         writer.writeResponse(200, "Updated new feed", lamportClock.incrementAndGet());
+        //     }
+        //     System.out.println("Saved a feed");
+        // } catch (IOException e) {
+        //     writer.writeResponse(500, "Server Couldn't save your feed" + e.toString(), lamportClock.incrementAndGet());
+        //     System.out.println("Error while trying to save a feed: " + e.toString());
+        //     e.printStackTrace();
+        // }
     }
 }
