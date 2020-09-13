@@ -28,6 +28,8 @@ public class AggregationServer {
             e.printStackTrace();
         }
 
+        //Create a thread that deletes 12 second old feed every second
+        new AggregationDeleterThread(storage).start();
 
         //Start accepting connections
         System.out.println("Starting server on port: " + portNumber);
