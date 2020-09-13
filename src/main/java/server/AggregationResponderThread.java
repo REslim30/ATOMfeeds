@@ -40,6 +40,8 @@ public class AggregationResponderThread extends Thread {
                 reader.readRequest();
                 writer = new HTTPResponseWriter(out);
 
+                System.out.println(socket.getRemoteSocketAddress().toString());
+
                 respond(reader, writer);
                 //end connection if client wants to end connection
                 if (reader.getHeader("connection") != null && reader.getHeader("connection").equals("close"))
@@ -72,8 +74,6 @@ public class AggregationResponderThread extends Thread {
             return; 
         }
 
-        long curLamport = lamportClock.setMaxAndIncrementAndGet(Long.parseLong(lamportClockString));
-
         //Return bad response if unimplemented methods
         if (!reader.getMethod().equals("GET") && !reader.getMethod().equals("PUT")) {
             writer.writeResponse(400, "Only GET and PUT is implemented on this server", lamportClock.incrementAndGet());
@@ -81,18 +81,22 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-        //Handle GET and PUT requests
-        if (reader.getMethod().equals("GET")) {
-            handleGET(reader, writer, curLamport);
-        } else {
-            handlePUT(reader, writer, curLamport);
-        }     
+        synchronized(lamportClock) {
+            lamportClock.setMaxAndIncrement(Long.parseLong(lamportClockString));
+
+            //Handle GET and PUT requests
+            if (reader.getMethod().equals("GET")) {
+                handleGET(reader, writer);
+            } else {
+                handlePUT(reader, writer);
+            }     
+        }
 
     }
     
 
     //Sends a response for a GET request
-    private void handleGET(HTTPRequestReader reader, HTTPResponseWriter writer, long curLamport) {
+    private void handleGET(HTTPRequestReader reader, HTTPResponseWriter writer) {
         if (reader.getURL().equals("/")) {
             writer.writeResponse(404, "GET resource does not exist. Only resource available is '/'", lamportClock.incrementAndGet());
             return;
@@ -100,7 +104,7 @@ public class AggregationResponderThread extends Thread {
 
         //Aggregate Feeds and send them to GET client
         try {
-            String body = AggregationStorageManager.retrieve(curLamport);
+            String body = AggregationStorageManager.retrieve(lamportClock.incrementAndGet());
             writer.writeResponse(200, body, lamportClock.incrementAndGet());
             System.out.println("Retrieved feeds for GET client");
         } catch (IOException e) {
@@ -111,7 +115,7 @@ public class AggregationResponderThread extends Thread {
     }
 
     //Sends a response for a PUT request
-    private void handlePUT(HTTPRequestReader reader, HTTPResponseWriter writer, long curLamport) {
+    private void handlePUT(HTTPRequestReader reader, HTTPResponseWriter writer) {
         if (reader.getURL().equals("/atom.xml")) {
             writer.writeResponse(404, "PUT resource does not exist. Only resource available is '/atom.xml'", lamportClock.incrementAndGet());
             return;
@@ -129,7 +133,7 @@ public class AggregationResponderThread extends Thread {
 
         //Save the feed within the PUT requets
         try {
-            AggregationStorageManager.save(curLamport, reader.getBody());
+            AggregationStorageManager.save(lamportClock.incrementAndGet(), reader.getBody());
             if (isNew) {
                 writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
                 isNew = false;

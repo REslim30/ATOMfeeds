@@ -13,7 +13,7 @@ public class AggregationStorageManager {
     private final static Path serverResources = new File("src/main/resources/server").toPath();
 
     //Saves feed in a file of the following format:
-    //<lamportClock>_<connectionId>.xml
+    //<lamportClock>.xml
     public static synchronized void save(long lamportClock, String body) throws IOException {
         String fileName = Long.toString(lamportClock)  + ".xml";
         Files.write(Paths.get(serverResources.toString(), "/", fileName), body.getBytes(), StandardOpenOption.CREATE_NEW); 
