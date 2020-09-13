@@ -5,8 +5,16 @@ Notes:
     - Array of strings.
     - Handles concurrent requests
 
+### Notes on external libraries
+    - I used the following external libraries:
+        - Junit -> for unit tests.
+        - sqlite-jdbc -> for maintaining feeds.
+    - Please let me know if these are not allowed.
+
+
 ### Notes on Running
     - All processes should be run from the main parent directory. (Where this README.md is located)
+
 
 ### Note on lamport clocks
     - lamport clocks on the server are updated for:
@@ -20,11 +28,3 @@ Notes:
     requests may arrive in a certain order, but be considered "received" in another order.
     The server guarantees that requests are responded to in the order that it was received.
 
-
-### File System
-    - ATOM files are stored on the system are named in a special format:
-        <lamport-clock>_<connection-id>.xml
-    where <lamport-clock> is the lamport clock value of the PUT request,
-    and <connection-id> is the connection_id of the connection. This allows
-    the server to maintain logical ordering
-    
