@@ -8,14 +8,13 @@ Notes:
 ### Notes on Running
     - All processes should be run from the main parent directory. (Where this README.md is located)
 
-### Notes on Lamport Clocks
-    - In order to choose between equal lamport clock values
-    the aggregation server assigns each connection a connection_id.
-    In a real life system, this would be impractical as we would
-    run out of available id's over time. However, since other methods
-    like using a IP-PID combo are just a bit more complicated to use,
-    I've decided that these other methods are a little out of scope
-    for this assignment.
+### Note on lamport clocks
+    - lamport clocks on the server are updated for:
+        - receiving requests.
+        - sending requests.
+        - aggregating feeds.
+        - saving feeds.
+
 
 ### File System
     - ATOM files are stored on the system are named in a special format:

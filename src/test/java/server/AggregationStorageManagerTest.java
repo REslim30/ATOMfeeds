@@ -17,63 +17,51 @@ public class AggregationStorageManagerTest {
 
     @Test
     public void savesOneFile() throws IOException {
-        AggregationStorageManager.save(0,0,"body text");
-        boolean resourceExists= serverResourceMatches("0_0.xml", "body text");
+        AggregationStorageManager.save(0,"body text");
+        boolean resourceExists= serverResourceMatches("0.xml", "body text");
         assertEquals(true, resourceExists);
     }
 
     @Test
     public void savesTwoFiles() throws IOException {
-        AggregationStorageManager.save(129038410,458,"crazy flkjasdl;fkjasd;flkjadsfasdl;fkjasl;df\nslkfjsldka\nfjdf");
-        assertEquals(true, serverResourceMatches("129038410_458.xml", "crazy flkjasdl;fkjasd;flkjadsfasdl;fkjasl;df\nslkfjsldka\nfjdf"));
-        AggregationStorageManager.save(129038420,458,"afjoinrqwerqw.ermn,.fasdf\nasldkfjas;ldkfj\nasdkjfa;lskdf\n");
-        assertEquals(true, serverResourceMatches("129038420_458.xml", "afjoinrqwerqw.ermn,.fasdf\nasldkfjas;ldkfj\nasdkjfa;lskdf\n"));
+        AggregationStorageManager.save(129038410,"crazy flkjasdl;fkjasd;flkjadsfasdl;fkjasl;df\nslkfjsldka\nfjdf");
+        assertEquals(true, serverResourceMatches("129038410.xml", "crazy flkjasdl;fkjasd;flkjadsfasdl;fkjasl;df\nslkfjsldka\nfjdf"));
+        AggregationStorageManager.save(129038420,"afjoinrqwerqw.ermn,.fasdf\nasldkfjas;ldkfj\nasdkjfa;lskdf\n");
+        assertEquals(true, serverResourceMatches("129038420.xml", "afjoinrqwerqw.ermn,.fasdf\nasldkfjas;ldkfj\nasdkjfa;lskdf\n"));
     }
 
     @Test(expected = IOException.class)
     public void throwsExceptionIfDuplicateName() throws IOException {
-        AggregationStorageManager.save(12,12,"");
-        AggregationStorageManager.save(12,12,"");
+        AggregationStorageManager.save(12,"");
+        AggregationStorageManager.save(12,"");
     }
 
     @Test
     public void retrievesOneFile() throws IOException {
-        AggregationStorageManager.save(12, 324138, "test body");
-        assertEquals("test body", AggregationStorageManager.retrieve(12, 324138));
+        AggregationStorageManager.save(12, "test body");
+        assertEquals("test body", AggregationStorageManager.retrieve(12));
     }
 
     @Test
     public void retrievesEmptyIfLamportClockLess() throws IOException {
-        AggregationStorageManager.save(12, 324138, "test body");
-        assertEquals("", AggregationStorageManager.retrieve(11, 2394234)); 
+        AggregationStorageManager.save(12, "test body");
+        assertEquals("", AggregationStorageManager.retrieve(11)); 
     }
 
     @Test
-    public void retrievesEmptyIfLamportClockEqualButConnectionIdLess() throws IOException {
-        AggregationStorageManager.save(1000, 324138, "test body");
-        assertEquals("", AggregationStorageManager.retrieve(1000, 300)); 
-    }
-
-    @Test
-    public void retrievesIfLamportClockEqualButConnectionIdGreater() throws IOException {
-        AggregationStorageManager.save(1000, 324138, "test body");
-        assertEquals("test body", AggregationStorageManager.retrieve(1000, 400000)); 
-    }
-
-    @Test
-    public void retrievesIfLamportClockEqualAndConnectionIdEqual() throws IOException {
-        AggregationStorageManager.save(1000, 400000, "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work");
-        assertEquals("test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work", AggregationStorageManager.retrieve(1000, 400000)); 
+    public void retrievesIfLamportClockEqual() throws IOException {
+        AggregationStorageManager.save(1000, "test body");
+        assertEquals("test body", AggregationStorageManager.retrieve(1000)); 
     }
 
     @Test
     public void retrievesTwo() throws IOException {
         String s1 =  "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work";
         String s2 =  "very specific string";
-        AggregationStorageManager.save(1000, 400000, s1);
-        AggregationStorageManager.save(1500, 400000, s2);
+        AggregationStorageManager.save(1000,  s1);
+        AggregationStorageManager.save(1500,  s2);
 
-        String body = AggregationStorageManager.retrieve(2000, 0);
+        String body = AggregationStorageManager.retrieve(2000);
         System.out.println(body);
         assertEquals(true, body.contains(s1));
         assertEquals(true, body.contains(s2));
@@ -84,10 +72,10 @@ public class AggregationStorageManagerTest {
     public void saveTwoRetrievesOneIfLamportClockLess() throws IOException {
         String s1 =  "test body\n\nwowsers\nnewlines?\ttabs?\tthey should all work";
         String s2 =  "very specific string";
-        AggregationStorageManager.save(1000, 400000, s1);
-        AggregationStorageManager.save(1500, 400000, s2);
+        AggregationStorageManager.save(1000, s1);
+        AggregationStorageManager.save(1500, s2);
 
-        String body = AggregationStorageManager.retrieve(1250, 40000);
+        String body = AggregationStorageManager.retrieve(1250);
         assertEquals(true, body.contains(s1));
         assertEquals(false, body.contains(s2));
         assertEquals(s1.length(), body.length());

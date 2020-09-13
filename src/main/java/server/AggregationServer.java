@@ -19,12 +19,11 @@ public class AggregationServer {
         }
 
         //Start accepting connections
-        long connectionId = 0;
         System.out.println("Starting server on port: " + portNumber);
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
             //Starts an AggregationResponderThread
             while (true) {
-                new AggregationResponderThread(serverSocket.accept(), connectionId++, lamportClock).start();
+                new AggregationResponderThread(serverSocket.accept(), lamportClock).start();
             }
         } catch (IOException e) {
             System.err.println("Could not listen on port " + portNumber);

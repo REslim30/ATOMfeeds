@@ -13,14 +13,14 @@ import main.java.http.HTTPResponseWriter;
  */
 public class AggregationResponderThread extends Thread {
     //needed to handle lamport clocks that are of equal value
-    private long connectionId;
     private LamportClock lamportClock;
     private Socket socket;
+    private boolean isNew;
 
-    public AggregationResponderThread(Socket socket , long connectionId, LamportClock lamportClock) {
+    public AggregationResponderThread(Socket socket, LamportClock lamportClock) {
         this.socket = socket;
-        this.connectionId = connectionId;
         this.lamportClock = lamportClock;
+        this.isNew = true;
     }
     
     public void run() {
@@ -72,7 +72,7 @@ public class AggregationResponderThread extends Thread {
             return; 
         }
 
-        lamportClock.setMaxAndIncrement(Long.parseLong(lamportClockString));
+        long curLamport = lamportClock.setMaxAndIncrementAndGet(Long.parseLong(lamportClockString));
 
         //Return bad response if unimplemented methods
         if (!reader.getMethod().equals("GET") && !reader.getMethod().equals("PUT")) {
@@ -83,27 +83,35 @@ public class AggregationResponderThread extends Thread {
 
         //Handle GET and PUT requests
         if (reader.getMethod().equals("GET")) {
-            handleGET(reader, writer);
+            handleGET(reader, writer, curLamport);
         } else {
-            handlePUT(reader, writer);
+            handlePUT(reader, writer, curLamport);
         }     
 
     }
     
 
     //Sends a response for a GET request
-    private void handleGET(HTTPRequestReader reader, HTTPResponseWriter writer) {
+    private void handleGET(HTTPRequestReader reader, HTTPResponseWriter writer, long curLamport) {
         if (reader.getURL().equals("/")) {
             writer.writeResponse(404, "GET resource does not exist. Only resource available is '/'", lamportClock.incrementAndGet());
             return;
         }
 
-        //TODO: Create retrieval method
-        writer.writeResponse(200, "looks okay.", lamportClock.incrementAndGet());
+        //Aggregate Feeds and send them to GET client
+        try {
+            String body = AggregationStorageManager.retrieve(curLamport);
+            writer.writeResponse(200, body, lamportClock.incrementAndGet());
+            System.out.println("Retrieved feeds for GET client");
+        } catch (IOException e) {
+            writer.writeResponse(500, "Server couldn't retrieve the feeds: " + e.toString(), lamportClock.incrementAndGet());
+            System.out.println("Couldn't retrieve feeds for GET client: " + e.toString());
+            e.printStackTrace();
+        }
     }
 
     //Sends a response for a PUT request
-    private void handlePUT(HTTPRequestReader reader, HTTPResponseWriter writer) {
+    private void handlePUT(HTTPRequestReader reader, HTTPResponseWriter writer, long curLamport) {
         if (reader.getURL().equals("/atom.xml")) {
             writer.writeResponse(404, "PUT resource does not exist. Only resource available is '/atom.xml'", lamportClock.incrementAndGet());
             return;
@@ -119,7 +127,20 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-        //TODO: Create saving method
-        writer.writeResponse(200, "looks okay.", lamportClock.incrementAndGet());
+        //Save the feed within the PUT requets
+        try {
+            AggregationStorageManager.save(curLamport, reader.getBody());
+            if (isNew) {
+                writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
+                isNew = false;
+            } else {
+                writer.writeResponse(200, "Updated new feed", lamportClock.incrementAndGet());
+            }
+            System.out.println("Saved a feed");
+        } catch (IOException e) {
+            writer.writeResponse(500, "Server Couldn't save your feed" + e.toString(), lamportClock.incrementAndGet());
+            System.out.println("Error while trying to save a feed: " + e.toString());
+            e.printStackTrace();
+        }
     }
 }
