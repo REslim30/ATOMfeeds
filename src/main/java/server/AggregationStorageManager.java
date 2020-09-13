@@ -22,6 +22,7 @@ public class AggregationStorageManager {
                         .toString());
     }
 
+    //Destructor
     protected void finalize() {
         try {
             if (connection != null)
@@ -67,5 +68,15 @@ public class AggregationStorageManager {
             bodyBuilder.append(allFeeds.getString("body"));
         }
         return bodyBuilder.toString();
+    }
+
+    //Deletes 12 second old feeds
+    public synchronized void deleteOldFeeds() throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.setQueryTimeout(30);
+
+        //Get the time of 12 seconds ago
+        long oldTime = (new Date()).getTime() - (12*1000);
+        statement.executeUpdate("DELETE from feeds WHERE date <= " + oldTime);
     }
 }

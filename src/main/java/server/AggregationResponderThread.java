@@ -15,17 +15,14 @@ public class AggregationResponderThread extends Thread {
     private LamportClock lamportClock;
     private Socket socket;
     private AggregationStorageManager storage;
-    private boolean isNew;
 
     public AggregationResponderThread(Socket socket, LamportClock lamportClock, AggregationStorageManager storage) {
         this.socket = socket;
         this.lamportClock = lamportClock;
         this.storage = storage;
-        this.isNew = true;
     }
     
     public void run() {
-        System.err.println("AggregationResponderThread has started");
         //Reads the request
         HTTPRequestReader reader = null;
         HTTPResponseWriter writer = null;
@@ -55,7 +52,6 @@ public class AggregationResponderThread extends Thread {
         }
 
         
-        System.out.println("AggregationResponderThread has ended");
     }
 
     //Responds depending on GET or PUT request
