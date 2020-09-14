@@ -16,22 +16,19 @@ public class HTTPResponseReader {
         this.in = in;
         headers = new HashMap<String, String>();
     }
-    public void readResponse() {
-
-        try {
-            parseStatusLine();
-            parseHeaders();
-            parseBody();
-        } catch (IOException e) {
-            System.err.println("HTTPResponseReader: Error in reading response.:");
-            System.err.println(e.toString());
-        } 
+    public void readResponse() throws IOException {
+        parseStatusLine();
+        parseHeaders();
+        parseBody();
     }
 
     //Parses the status line of the response
     //Throws an IOException in a bad response
     private void parseStatusLine() throws IOException {
         String inputLine = in.readLine();
+        if (inputLine == null)
+            throw new IOException("Seem to have lost connection");
+
         statusLine = new String[3];
         
         int prevSpace = 0;
@@ -43,13 +40,13 @@ public class HTTPResponseReader {
         statusLine[2] = inputLine.substring(curSpace+1);
 
         if (statusLine.length < 3) 
-            throw new RuntimeException("Status line should have 3 segments. Current Status line: " + inputLine);
+            throw new IOException("Status line should have 3 segments. Current Status line: " + inputLine);
 
         if (!statusLine[0].matches("^HTTP.*")) 
-            throw new RuntimeException("Unknown protocol:" + statusLine[0]);
+            throw new IOException("Unknown protocol:" + statusLine[0]);
 
         if (!statusLine[1].matches("\\d\\d\\d"))
-            throw new RuntimeException("Unknown status code: " + statusLine[1]);
+            throw new IOException("Unknown status code: " + statusLine[1]);
         
     }
 
@@ -57,24 +54,24 @@ public class HTTPResponseReader {
     //Assumes headers are delimited by ': '
     private void parseHeaders() throws IOException {
         String inputLine;
-        while (!(inputLine = in.readLine()).isEmpty()) {
+        while ((inputLine = in.readLine()) != null && inputLine.isEmpty()) {
             int delim = inputLine.indexOf(": ");
             headers.put(inputLine.substring(0, delim).toLowerCase(), inputLine.substring(delim+2));
         }
+        if (inputLine == null)
+            throw new IOException("Seem to have lost connection");
     }
 
     //Parses the body fields of the response
     //Does not support anything other than text
     //Or application/xml+atom
     private void parseBody() throws IOException {
-        StringBuilder bodyBuilder = new StringBuilder();
-
         int size = Integer.parseInt(headers.getOrDefault("content-length", "0"));
-
-        for (int i=0; i<size; i++) {
-            bodyBuilder.append((char)in.read());
+        
+        char[] charBuf = new char[size];
+        if (in.read(charBuf, 0, size) < size) {
+            throw new IOException("Seem to have lost connection");
         }
-        body = bodyBuilder.toString();
     }
 
     //Returns a string representation of the response

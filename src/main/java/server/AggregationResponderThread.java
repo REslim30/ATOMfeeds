@@ -38,7 +38,7 @@ public class AggregationResponderThread extends Thread {
                 reader.readRequest();
                 writer = new HTTPResponseWriter(out);
 
-                System.out.println(socket.getRemoteSocketAddress().toString());
+                System.out.println("Message from:" + socket.getRemoteSocketAddress().toString());
 
                 respond(reader, writer);
                 //end connection if client wants to end connection
@@ -48,7 +48,7 @@ public class AggregationResponderThread extends Thread {
 
             socket.close();
         } catch (IOException e) {
-            System.err.println("AggregationResponderThread: Error while managing connection: " + e.toString());
+            System.err.println("Error while managing connection: " + socket.getRemoteSocketAddress().toString() + "  -  " + e.getMessage());
         }
 
         

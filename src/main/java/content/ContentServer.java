@@ -78,8 +78,10 @@ public class ContentServer {
                         System.out.println("Invalid Input");
                         break;
                     
-                }
+                } 
             }
+        } catch (IOException e) {
+            System.err.println("Error while managing connection   -   " + e.getMessage());
         }
     }
 
@@ -135,7 +137,7 @@ public class ContentServer {
     //Receive the response
     //Print relevant information to stdin
     //Returns false if server wants to end the connection
-    private static boolean receiveResponse(BufferedReader in) {
+    private static boolean receiveResponse(BufferedReader in) throws IOException {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
 

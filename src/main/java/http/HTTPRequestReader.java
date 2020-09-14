@@ -19,50 +19,49 @@ public class HTTPRequestReader {
     }
 
     //Reads the request
-    public void readRequest() {
-        try {
-            parseRequestLine();
-            parseHeaders();
-            parseBody();
-        } catch (IOException e) {
-            System.err.println("HTTPRequestReader: Error in reading response.:");
-            System.err.println(e.toString());
-        }
+    public void readRequest() throws IOException {
+        parseRequestLine();
+        parseHeaders();
+        parseBody();
     }
 
     //Parses the request line of the request
     //Throws an IOException in a bad request
     private void parseRequestLine() throws IOException {
         String inputLine = in.readLine();
+        if (inputLine == null) 
+            throw new IOException("Seem to have lost connection");
+
         requestLine = inputLine.split(" ");
         if (requestLine.length != 3) 
-            throw new RuntimeException("Request line should have 3 segments");
+            throw new IOException("Request line should have 3 segments");
 
         if (!requestLine[2].matches("^HTTP.*"))
-            throw new RuntimeException("Unkown protocol: " + requestLine[2]);
+            throw new IOException("Unkown protocol: " + requestLine[2]);
     }
 
     //Parses the header fields of the response
     //Assumes headers are delimited by ": "
     private void parseHeaders() throws IOException {
         String inputLine;
-        while (!(inputLine = in.readLine()).isEmpty()) {
+        while ((inputLine = in.readLine()) != null && !inputLine.isEmpty()) {
             int delim = inputLine.indexOf(": ");
             headers.put(inputLine.substring(0, delim).toLowerCase(), inputLine.substring(delim + 2));
         }
+        if (inputLine == null) 
+            throw new IOException("Seem to have lost connection");
     }
 
     //Parses the body fields of the response
     //Assumes text based
     private void parseBody() throws IOException {
-        StringBuilder bodyBuilder = new StringBuilder();
-
         int size = Integer.parseInt(headers.getOrDefault("content-length", "0"));
 
-        for (int i=0; i<size; i++) {
-            bodyBuilder.append((char)in.read());
-        }
-        body = bodyBuilder.toString();
+        char[] bodyChars = new char[size];
+        if (in.read(bodyChars, 0, size) < size) 
+            throw new IOException("Body ended before full content-length characters");
+        
+        body = new String(bodyChars);
     }
 
     //Returns a string representation of the response

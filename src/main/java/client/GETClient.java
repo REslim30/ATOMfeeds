@@ -80,11 +80,13 @@ public class GETClient {
                         break;
                 }
             }
+        } catch (IOException e) {
+            System.err.println("Error while managing connection   -   " + e.getMessage());
         }
     }
 
     //Sends a basic HTTP request
-    private static void sendRequest(PrintWriter out, String hostName) {
+    private static void sendRequest(PrintWriter out, String hostName) throws IOException {
             out.print("GET / HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
             out.print("User-Agent: ATOMGETClient/1/0\r\n");
@@ -92,13 +94,16 @@ public class GETClient {
             out.print("Lamport-Clock: " + Long.toString(lamportClock) + "\r\n");
             out.print("\r\n");
             out.flush();
+
+            if (out.checkError())
+                throw new IOException("Seem to have lost connection");
     }
 
     //Receives the response
     //And prints to stdin
     //Returns false if server wants to close connection
     //Also updates lamportClock value
-    private static boolean receiveResponse(BufferedReader in) {
+    private static boolean receiveResponse(BufferedReader in) throws IOException {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
         System.out.println(response.getBody());
