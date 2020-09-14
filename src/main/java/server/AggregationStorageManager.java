@@ -38,18 +38,35 @@ public class AggregationStorageManager {
     //Returns true if inserted a new feed
     //Returns false if updated an old feed
     public synchronized boolean saveFeed(String ipPort, String body) throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.setQueryTimeout(30);  // set timeout to 30 sec.
+        PreparedStatement statement = connection.prepareStatement("SELECT * FROM feeds WHERE ip_port=?");
 
         //First checks if row exists
-        ResultSet result = statement.executeQuery("SELECT * FROM feeds WHERE ip_port='" + ipPort + "'");
-        String curTime = Long.toString((new Date()).getTime());
+        statement.setString(1, ipPort);
+        boolean isOld;
+        try (ResultSet result = statement.executeQuery()) {
+            isOld = result.next();
+        }
+        
+
         //Then updates/inserts new feed
-        if (result.next()) {
-            statement.executeUpdate("UPDATE feeds SET body = '" + body + "', date=" + curTime + " WHERE ip_port='" + ipPort + "'");
+        long curTime = new Date().getTime();
+        if (isOld) {
+            statement = connection.prepareStatement("UPDATE feeds SET body=?, date=? WHERE ip_port=?");
+            statement.setString(1, body);
+            statement.setLong(2, curTime);
+            statement.setString(3, ipPort);
+            statement.executeUpdate();
+
+            statement.close();
             return false;
         } else {
-            statement.executeUpdate("INSERT into feeds values('" + ipPort + "'," + curTime + ",'" + body + "')"); 
+            statement = connection.prepareStatement("INSERT into feeds values(?,?,?)");
+            statement.setString(1, ipPort);
+            statement.setLong(2, curTime);
+            statement.setString(3, body);
+            statement.executeUpdate(); 
+
+            statement.close();
             return true;
         }
     }

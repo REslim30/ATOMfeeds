@@ -9,6 +9,7 @@ import main.java.http.*;
 
 
 public class GETClient {
+    private static long lamportClock = 0;
     public static void main(String[] args) {
         
         //Parse hostname and port number
@@ -54,7 +55,7 @@ public class GETClient {
                 System.out.println("1    - to send a GET request");
                 switch(stdIn.nextLine()) {
                     case "0":
-                        System.out.println("closing the connection");
+                        log("closing the connection");
                         return;
                     case "1":
                         //If server has closed the connection
@@ -62,18 +63,20 @@ public class GETClient {
                         if (out.checkError()) 
                             return;
                         
-                        System.out.println("Sending Get request");
+                        log("Sending Get request");
+
+                        lamportClock++;
                         sendRequest(out, hostName);
 
-                        System.out.println("Server sent back:");
+                        log("Server sent back:");
                         if (!receiveResponse(in)) {
-                            System.out.println("Server wants to close connection");
-                            System.out.println("closing connection");
+                            log("Server wants to close connection");
+                            log("closing connection");
                             return;
                         }
                         break;
                     default:
-                        System.out.println("Invalid Input");
+                        log("Invalid Input");
                         break;
                 }
             }
@@ -86,20 +89,32 @@ public class GETClient {
             out.print("Host: " + hostName + "\r\n");
             out.print("User-Agent: ATOMGETClient/1/0\r\n");
             out.print("Connection: keep-alive\r\n");
+            out.print("Lamport-Clock: " + Long.toString(lamportClock) + "\r\n");
             out.print("\r\n");
             out.flush();
     }
 
     //Receives the response
     //And prints to stdin
-    //Returns false if server 
-    //wants to close connection
+    //Returns false if server wants to close connection
+    //Also updates lamportClock value
     private static boolean receiveResponse(BufferedReader in) {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
         System.out.println(response.getBody());
 
+        String lamportClockString = response.getHeader("lamport-clock");
+        if (lamportClockString != null && lamportClockString.matches("\\d*")) {
+            lamportClock = Long.max(lamportClock, Long.parseLong(lamportClockString));
+            lamportClock++;
+        }
+
         String connection = response.getHeader("Connection");
         return (connection == null || connection.equals("keep-alive"));
+    }
+
+    //Logs a response with lamportClock
+    private static void log(String input) {
+        System.out.println("Lamport Clock = " + Long.toString(lamportClock) + "    ->   " + input);
     }
 }

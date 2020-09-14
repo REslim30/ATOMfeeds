@@ -41,6 +41,16 @@ public class AggregationStorageManagerTest {
     }
 
     @Test
+    public void savesSpecialCharacters() throws SQLException {
+        storage.saveFeed("128.12039.12301203.1231:3000", "<>,.:\";'{}[]\\|+_=-)(*&^%$#@!~`/?");
+
+        ResultSet feeds = statement.executeQuery("SELECT * FROM feeds WHERE ip_port = '128.12039.12301203.1231:3000'");
+
+        assertEquals(true, feeds.next());
+        assertEquals("<>,.:\";'{}[]\\|+_=-)(*&^%$#@!~`/?", feeds.getString("body"));
+    }
+
+    @Test
     public void updatesOneFeed() throws SQLException {
         storage.saveFeed("128.169.1.20:4000", "test body");
         storage.saveFeed("128.169.1.20:4000", "new body");
@@ -84,6 +94,21 @@ public class AggregationStorageManagerTest {
         assertEquals("body25", feeds.getString("body"));
     }
 
+    @Test 
+    public void saveManyUpdateOne() throws SQLException {
+        storage.saveFeed("128.169.1.20:4000", "<?>?><<>??>}{|P}");
+        storage.saveFeed("128.170.1.20:4000", "<?>?><<>??>}{|P}");
+        storage.saveFeed("128.180.1.20:4000", "<?>?><<>??>}{|P}");
+        storage.saveFeed("128.190.1.20:4000", "<?>?><<>??>}{|P}");
+        storage.saveFeed("128.200.1.20:4000", "<?>?><<>??>}{|P}");
+
+        storage.saveFeed("128.190.1.20:4000", "Updated Feed <?>\":{|}+_)(*&^%#@#$%^&*(");
+
+        ResultSet feeds = statement.executeQuery("SELECT * FROM feeds WHERE ip_port = '128.190.1.20:4000'");
+        assertEquals(true, feeds.next());
+        assertEquals( "Updated Feed <?>\":{|}+_)(*&^%#@#$%^&*(", feeds.getString("body"));
+    }
+
     @Test
     public void getsOneFeed() throws SQLException {
         storage.saveFeed("128.169.1.20:4000", "\tnewbody\n\r\txmlgoeshere");
@@ -104,55 +129,55 @@ public class AggregationStorageManagerTest {
         assertEquals(firstBody.length() + secondBody.length() + 2, result.length());
     }
 
-    @Test
-    public void deletesFiveOldFeed() throws SQLException, InterruptedException {
-        storage.saveFeed("3:4:5::::6:8:5:8:f8c:8000", "test body");
-        storage.saveFeed("/128.169.102.1", "test body");
-        storage.saveFeed("id_string", "test body");
-        storage.saveFeed("#@!id string is here", "test body");
-        storage.saveFeed("ipipip***&&&string ^^_}{", "test body");
-        storage.saveFeed("                        ", "test body");
-        Thread.sleep(12*1000);
-        storage.deleteOldFeeds();
-        ResultSet resultSet = statement.executeQuery("select * from feeds");
-        assertEquals(false, resultSet.next());
-    }
+    // @Test
+    // public void deletesFiveOldFeed() throws SQLException, InterruptedException {
+    //     storage.saveFeed("3:4:5::::6:8:5:8:f8c:8000", "test body");
+    //     storage.saveFeed("/128.169.102.1", "test body");
+    //     storage.saveFeed("id_string", "test body");
+    //     storage.saveFeed("#@!id string is here", "test body");
+    //     storage.saveFeed("ipipip***&&&string ^^_}{", "test body");
+    //     storage.saveFeed("                        ", "test body");
+    //     Thread.sleep(12*1000);
+    //     storage.deleteOldFeeds();
+    //     ResultSet resultSet = statement.executeQuery("select * from feeds");
+    //     assertEquals(false, resultSet.next());
+    // }
 
-    @Test
-    public void doesntDeleteFiveOldFeeds() throws SQLException, InterruptedException { 
-        storage.saveFeed("3:4:5::::6:8:5:8:f8c:8000", "test body");
-        storage.saveFeed("/128.169.102.1", "test body");
-        storage.saveFeed("id_string", "test body");
-        storage.saveFeed("#@!id string is here", "test body");
-        storage.saveFeed("ipipip***&&&string ^^_}{", "test body");
-        storage.saveFeed("                        ", "test body");
-        Thread.sleep(11*1000);
-        storage.deleteOldFeeds();
-        ResultSet resultSet = statement.executeQuery("select * from feeds");
-        for (int i = 0; i < 6; i++) {
-            assertEquals(true, resultSet.next());
-        }
-        assertEquals(false, resultSet.next());
-    }
+    // @Test
+    // public void doesntDeleteFiveOldFeeds() throws SQLException, InterruptedException { 
+    //     storage.saveFeed("3:4:5::::6:8:5:8:f8c:8000", "test body");
+    //     storage.saveFeed("/128.169.102.1", "test body");
+    //     storage.saveFeed("id_string", "test body");
+    //     storage.saveFeed("#@!id string is here", "test body");
+    //     storage.saveFeed("ipipip***&&&string ^^_}{", "test body");
+    //     storage.saveFeed("                        ", "test body");
+    //     Thread.sleep(11*1000);
+    //     storage.deleteOldFeeds();
+    //     ResultSet resultSet = statement.executeQuery("select * from feeds");
+    //     for (int i = 0; i < 6; i++) {
+    //         assertEquals(true, resultSet.next());
+    //     }
+    //     assertEquals(false, resultSet.next());
+    // }
 
-    @Test
-    public void onlyDeletesOldFeeds() throws SQLException, InterruptedException {
-        storage.saveFeed("3:4:5::::6:8:5:8:f8c:8000", "test body");
-        storage.saveFeed("/128.169.102.1", "test body");
-        storage.saveFeed("id_string", "test body");
-        Thread.sleep(5*1000);
-        storage.saveFeed("#@!id string is here", "test body");
-        storage.saveFeed("ipipip***&&&string ^^_}{", "test body");
-        storage.saveFeed("                        ", "test body");
-        Thread.sleep(7*1000);
-        storage.deleteOldFeeds();
-        ResultSet resultSet = statement.executeQuery("select * from feeds");
-        for (int i = 0; i < 3; i++) {
-            assertEquals(true, resultSet.next());
-        }
-        assertEquals(false, resultSet.next());
+    // @Test
+    // public void onlyDeletesOldFeeds() throws SQLException, InterruptedException {
+    //     storage.saveFeed("3:4:5::::6:8:5:8:f8c:8000", "test body");
+    //     storage.saveFeed("/128.169.102.1", "test body");
+    //     storage.saveFeed("id_string", "test body");
+    //     Thread.sleep(5*1000);
+    //     storage.saveFeed("#@!id string is here", "test body");
+    //     storage.saveFeed("ipipip***&&&string ^^_}{", "test body");
+    //     storage.saveFeed("                        ", "test body");
+    //     Thread.sleep(7*1000);
+    //     storage.deleteOldFeeds();
+    //     ResultSet resultSet = statement.executeQuery("select * from feeds");
+    //     for (int i = 0; i < 3; i++) {
+    //         assertEquals(true, resultSet.next());
+    //     }
+    //     assertEquals(false, resultSet.next());
 
-    }
+    // }
 
     @After
     public void clearsTable() throws SQLException {

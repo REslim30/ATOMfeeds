@@ -32,8 +32,17 @@ public class HTTPResponseReader {
     //Throws an IOException in a bad response
     private void parseStatusLine() throws IOException {
         String inputLine = in.readLine();
-        statusLine = inputLine.split(" ");
-        if (statusLine.length != 3) 
+        statusLine = new String[3];
+        
+        int prevSpace = 0;
+        int curSpace = inputLine.indexOf(' ');
+        statusLine[0] = inputLine.substring(prevSpace, curSpace);
+        prevSpace = curSpace + 1;
+        curSpace = inputLine.indexOf(' ', prevSpace);
+        statusLine[1] = inputLine.substring(prevSpace, curSpace);
+        statusLine[2] = inputLine.substring(curSpace+1);
+
+        if (statusLine.length < 3) 
             throw new RuntimeException("Status line should have 3 segments. Current Status line: " + inputLine);
 
         if (!statusLine[0].matches("^HTTP.*")) 
@@ -41,6 +50,7 @@ public class HTTPResponseReader {
 
         if (!statusLine[1].matches("\\d\\d\\d"))
             throw new RuntimeException("Unknown status code: " + statusLine[1]);
+        
     }
 
     //Parses the header fields of the response

@@ -130,6 +130,7 @@ public class AggregationResponderThread extends Thread {
 
         //Save a feed
         try {
+            System.out.println(reader.getBody());
             if (storage.saveFeed(socket.getRemoteSocketAddress().toString(), reader.getBody())) {
                 writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
                 System.out.println("Created new feed");

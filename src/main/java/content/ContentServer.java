@@ -7,6 +7,8 @@ import java.lang.System;
 import main.java.http.*;
 
 public class ContentServer {
+    private static long lamportClock = 0;
+
     public static void main(String[] args) {
         //Parse hostname and port number
         if (args.length != 2) {
@@ -60,13 +62,15 @@ public class ContentServer {
                         if (out.checkError()) 
                             return;
                         
-                        System.out.println("Sending PUT request");
+                        log("Sending PUT request");
+
+                        lamportClock++;
                         sendRequest(out, hostName, fileName);
 
-                        System.out.println("Server sent back:");
+                        log("Receiving Response: ");
                         if (!receiveResponse(in)) {
-                            System.out.println("Server wants to close connection");
-                            System.out.println("closing connection");
+                            log("Server wants to close connection");
+                            log("closing connection");
                             return;
                         }
                         break;
@@ -81,11 +85,16 @@ public class ContentServer {
 
     //Sends a basic HTTP request
     private static void sendRequest(PrintWriter out, String hostName, String fileName) {
-        //First read in a file
-        try (BufferedReader file = new BufferedReader(
-                                        new InputStreamReader(
-                                            ClassLoader.getSystemClassLoader()
-                                                .getResourceAsStream(fileName)))) {
+
+        //Open the file and read it in
+        BufferedReader file = null;
+        try {
+            InputStream fileStream = ClassLoader.getSystemClassLoader().getResourceAsStream("content/" + fileName);
+            if (fileStream == null) 
+                throw new FileNotFoundException();
+
+            file = new BufferedReader(new InputStreamReader(fileStream));
+
             String line;
             StringBuilder bodyBuilder = new StringBuilder();
             while ((line = file.readLine()) != null)  {
@@ -101,6 +110,7 @@ public class ContentServer {
             out.print("Connection: keep-alive\r\n");
             out.print("Content-Type: application/atom+xml" + "\r\n");
             out.print("Content-Length: " + Integer.toString(body.length()) + "\r\n");
+            out.print("Lamport-Clock: " + Long.toString(lamportClock) + "\r\n"); 
             out.print("\r\n");
             out.print(body);
             out.flush();
@@ -110,6 +120,15 @@ public class ContentServer {
             System.exit(1);
         } catch (IOException ioe) {
             System.err.println("Error in reading file: " + ioe.toString());
+        } finally {
+            //Ensure that file is closed
+            try {
+                if (file != null)
+                    file.close();
+            } catch (IOException e) {
+                System.err.println("Error in closing BufferedReader: " + e.toString());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -119,10 +138,21 @@ public class ContentServer {
     private static boolean receiveResponse(BufferedReader in) {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
-        System.out.println("Server responds with: " + response.getStatusCode() + " " + response.getStatusMsg());
-        System.out.println("Body: " + response.getBody());
+
+        String lamportClockString = response.getHeader("lamport-clock");
+        if (lamportClockString != null && lamportClockString.matches("\\d*")) {
+            lamportClock = Long.max(lamportClock, Long.parseLong(lamportClockString));
+        }
+
+        log("Server responds with: " + response.getStatusCode() + " " + response.getStatusMsg());
+        log("Body: " + response.getBody());
 
         String connection = response.getHeader("Connection");
         return (connection == null || connection.equals("keep-alive"));
+    }
+
+    //Logs the response with lamport clock
+    private static void log(String input) {
+        System.out.println("Lamport Clock: " + Long.toString(lamportClock) + "    ->    " + input);
     }
 }
