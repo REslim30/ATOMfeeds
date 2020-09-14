@@ -28,3 +28,10 @@ Notes:
     requests may arrive in a certain order, but be considered "received" in another order.
     The server guarantees that requests are responded to in the order that it was received.
 
+### Notes on testing
+    - Unit tests were created.
+        - The server unit tests were separated into two tests. normal tests and slow tests. 
+        Slow tests being tests that require explicit waiting.
+
+        make test_server  -> runs normal tests.
+        make test_slow_server   -> runs slow tests. 

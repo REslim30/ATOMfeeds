@@ -53,6 +53,9 @@ compile_test_http: compile_http src/test/java/http/*.java
 test_server: compile_test_server
 	$(run_test) test.java.server.AggregationStorageManagerTest
 
+test_slow_server: compile_test_server
+	$(run_test) test.java.server.AggregationStorageManagerSlowTest
+
 compile_test_server: compile_server src/test/java/server/*.java
 	@$(compile_test) src/test/java/server/*.java
 
