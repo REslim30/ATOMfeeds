@@ -39,7 +39,7 @@ endif
 
 
 #*** Tests ***
-test_class_flag=-cp "target:src/main/resources:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar"
+test_class_flag=-cp "target:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar"
 compile_test=javac $(test_class_flag) -d target
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
@@ -59,6 +59,11 @@ test_slow_server: compile_test_server
 compile_test_server: compile_server src/test/java/server/*.java
 	@$(compile_test) src/test/java/server/*.java
 
+test_atom: compile_test_atom
+	$(run_test) test.java.atom.TextToAtomParserTest
+
+compile_test_atom: compile_atom src/test/java/atom/*.java
+	$(compile_test) src/test/java/atom/*.java 
 
 
 #***Compliation***
@@ -74,3 +79,7 @@ compile_server: src/main/java/server/*.java compile_http
 #HTTP helpers
 compile_http: src/main/java/http/*.java
 	@$(compile) $?
+
+#Atom helpers
+compile_atom: src/main/java/atom/*.java
+	$(compile) $?
