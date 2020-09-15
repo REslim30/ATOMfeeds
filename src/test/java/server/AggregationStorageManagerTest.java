@@ -1,12 +1,10 @@
-package test.java.server;
+package server;
 
-import main.java.server.AggregationStorageManager;
+import server.AggregationStorageManager;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
 
-import java.net.URL;
-import java.nio.file.*;
 import java.io.*;
 
 import java.sql.*;

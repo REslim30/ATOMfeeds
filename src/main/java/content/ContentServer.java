@@ -1,11 +1,11 @@
-package main.java.content;
+package content;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.System;
-import main.java.http.*;
-import main.java.atom.TextToAtomParser;
+import http.*;
+import atom.TextToAtomParser;
 
 public class ContentServer {
     private static long lamportClock = 0;

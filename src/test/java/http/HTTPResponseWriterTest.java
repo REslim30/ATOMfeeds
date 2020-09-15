@@ -1,6 +1,6 @@
-package test.java.http;
+package http;
 
-import main.java.http.*;
+import http.*;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;

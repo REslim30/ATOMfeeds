@@ -1,12 +1,12 @@
-package main.java.server;
+package server;
 
 import java.net.*;
 import java.io.*;
-import main.java.atom.*;
+import atom.*;
 import org.xml.sax.SAXException;
 import java.sql.SQLException;
-import main.java.http.HTTPRequestReader;
-import main.java.http.HTTPResponseWriter;
+import http.HTTPRequestReader;
+import http.HTTPResponseWriter;
 
 /**
  * AggregationResponderThread

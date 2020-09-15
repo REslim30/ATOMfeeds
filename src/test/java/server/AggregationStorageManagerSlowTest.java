@@ -1,6 +1,6 @@
-package test.java.server;
+package server;
 
-import main.java.server.AggregationStorageManager;
+import server.AggregationStorageManager;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.*;

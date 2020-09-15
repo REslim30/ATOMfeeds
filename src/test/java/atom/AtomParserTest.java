@@ -1,6 +1,6 @@
-package test.java.atom;
+package atom;
 
-import main.java.atom.*;
+import atom.*;
 
 import java.io.*;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package main.java.atom;
+package atom;
 
 import java.lang.Exception;
 /**

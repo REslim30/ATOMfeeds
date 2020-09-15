@@ -1,6 +1,6 @@
-package test.java.http;
+package http;
 
-import main.java.http.URLParser;
+import http.URLParser;
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;

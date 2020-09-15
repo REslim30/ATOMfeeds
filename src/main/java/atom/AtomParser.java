@@ -1,4 +1,4 @@
-package main.java.atom;
+package atom;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.*;

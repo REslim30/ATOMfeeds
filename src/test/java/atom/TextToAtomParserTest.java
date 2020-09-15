@@ -1,7 +1,7 @@
-package test.java.atom;
+package atom;
 
 import java.io.*;
-import main.java.atom.TextToAtomParser;
+import atom.TextToAtomParser;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
