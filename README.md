@@ -37,7 +37,7 @@ Notes:
     parsing an invalid PUT request. 
 
     In essence, the server ensures logical ordering amongst valid requests, but 
-    handles invalid requests concurrently. Please let me know if this is unacceptable.
+    handles invalid requests in any order. Please let me know if this is unacceptable.
 
 ### Notes on testing
     - Unit tests were created.

@@ -175,7 +175,7 @@ public class TextToAtomParserTest {
             new InputStreamReader(
                 ClassLoader
                     .getSystemClassLoader()
-                        .getResourceAsStream("atom/" + fileName)
+                        .getResourceAsStream("atom/text_atom_parser/" + fileName)
             )
         );
         TextToAtomParser parser = new TextToAtomParser(buffered);

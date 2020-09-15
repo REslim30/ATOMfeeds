@@ -61,6 +61,7 @@ compile_test_server: compile_server src/test/java/server/*.java
 
 test_atom: compile_test_atom
 	$(run_test) test.java.atom.TextToAtomParserTest
+	$(run_test) test.java.atom.AtomParserTest
 
 compile_test_atom: compile_atom src/test/java/atom/*.java
 	$(compile_test) src/test/java/atom/*.java 

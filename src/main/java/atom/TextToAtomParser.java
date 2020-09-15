@@ -37,7 +37,7 @@ public class TextToAtomParser {
     //Returns null if invalid Atom document
     //otherwise returns Atom document
     public String parseAtom() throws IOException {
-        atomBuilder.append("<?xml version=\"1.0\" encoding\"UTF-8\"?>");
+        atomBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         parseFeed();
         return atomBuilder.toString();
     }
