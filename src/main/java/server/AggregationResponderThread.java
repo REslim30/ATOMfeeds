@@ -48,7 +48,7 @@ public class AggregationResponderThread extends Thread {
 
             socket.close();
         } catch (IOException e) {
-            System.err.println("Error while managing connection: " + socket.getRemoteSocketAddress().toString() + "  -  " + e.getMessage());
+            System.err.println("Connection: " + socket.getRemoteSocketAddress().toString() + "  -  " + e.getMessage());
         }
 
         
@@ -56,7 +56,6 @@ public class AggregationResponderThread extends Thread {
 
     //Responds depending on GET or PUT request
     private void respond(HTTPRequestReader reader, HTTPResponseWriter writer) {
-        String lamportClockString = reader.getHeader("lamport-clock");
         //If there's no lamport clock value, send a bad request message
         if (lamportClockString == null) {
             writer.writeResponse(400, "You must include a lamport-clock header inside your request", lamportClock.incrementAndGet());
@@ -78,8 +77,6 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-        synchronized(lamportClock) {
-            lamportClock.setMaxAndIncrement(Long.parseLong(lamportClockString));
 
             //Handle GET and PUT requests
             if (reader.getMethod().equals("GET")) {
@@ -87,8 +84,6 @@ public class AggregationResponderThread extends Thread {
             } else {
                 handlePUT(reader, writer);
             }     
-        }
-
     }
     
 
@@ -99,15 +94,19 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-        //Sends all feeds to client
-        try {
-            String body = storage.retrieveAllFeeds();
-            writer.writeResponse(200, body, lamportClock.incrementAndGet());
-            System.out.println("Retrieved feeds for GET client");
-        } catch (SQLException e) {
-            writer.writeResponse(500, "Server couldn't retrieve the feeds: " + e.toString(), lamportClock.incrementAndGet());
-            System.out.println("Couldn't retrieve feeds for GET client: " + e.toString());
-            e.printStackTrace();
+        synchronized(lamportClock) {
+            String lamportClockString = reader.getHeader("lamport-clock");
+            lamportClock.setMaxAndIncrement(Long.parseLong(lamportClockString));
+            //Sends all feeds to client
+            try {
+                String body = storage.retrieveAllFeeds();
+                writer.writeResponse(200, body, lamportClock.incrementAndGet());
+                System.out.println("Retrieved feeds for GET client");
+            } catch (SQLException e) {
+                writer.writeResponse(500, "Server couldn't retrieve the feeds: " + e.toString(), lamportClock.incrementAndGet());
+                System.out.println("Couldn't retrieve feeds for GET client: " + e.toString());
+                e.printStackTrace();
+            }
         }
     }
 
@@ -128,20 +127,24 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-        //Save a feed
-        try {
-            System.out.println(reader.getBody());
-            if (storage.saveFeed(socket.getRemoteSocketAddress().toString(), reader.getBody())) {
-                writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
-                System.out.println("Created new feed");
-            } else {
-                writer.writeResponse(200, "Updated feed", lamportClock.incrementAndGet());
-                System.out.println("Updated feed");
+        synchronized(lamportClock) {
+            String lamportClockString = reader.getHeader("lamport-clock");
+            lamportClock.setMaxAndIncrement(Long.parseLong(lamportClockString));
+            //Save a feed
+            try {
+                System.out.println(reader.getBody());
+                if (storage.saveFeed(socket.getRemoteSocketAddress().toString(), reader.getBody())) {
+                    writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
+                    System.out.println("Created new feed");
+                } else {
+                    writer.writeResponse(200, "Updated feed", lamportClock.incrementAndGet());
+                    System.out.println("Updated feed");
+                }
+            } catch (SQLException e) {
+                writer.writeResponse(500, "Server Couldn't save your feed" + e.toString(), lamportClock.incrementAndGet());
+                System.out.println("Error while trying to save a feed: " + e.toString());
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            writer.writeResponse(500, "Server Couldn't save your feed" + e.toString(), lamportClock.incrementAndGet());
-            System.out.println("Error while trying to save a feed: " + e.toString());
-            e.printStackTrace();
         }
     }
 }

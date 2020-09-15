@@ -31,16 +31,24 @@ public class HTTPResponseReader {
 
         statusLine = new String[3];
         
+        System.err.println(inputLine);
+
+        //Parses StatusLine
         int prevSpace = 0;
         int curSpace = inputLine.indexOf(' ');
+        if (curSpace == -1) 
+            throw new IOException("Unkown Status Line: " + inputLine);
+        
         statusLine[0] = inputLine.substring(prevSpace, curSpace);
+
         prevSpace = curSpace + 1;
         curSpace = inputLine.indexOf(' ', prevSpace);
+        if (curSpace == -1) 
+            throw new IOException("Unkown Status Line: " + inputLine);
+
         statusLine[1] = inputLine.substring(prevSpace, curSpace);
         statusLine[2] = inputLine.substring(curSpace+1);
 
-        if (statusLine.length < 3) 
-            throw new IOException("Status line should have 3 segments. Current Status line: " + inputLine);
 
         if (!statusLine[0].matches("^HTTP.*")) 
             throw new IOException("Unknown protocol:" + statusLine[0]);
@@ -54,7 +62,7 @@ public class HTTPResponseReader {
     //Assumes headers are delimited by ': '
     private void parseHeaders() throws IOException {
         String inputLine;
-        while ((inputLine = in.readLine()) != null && inputLine.isEmpty()) {
+        while ((inputLine = in.readLine()) != null && !inputLine.isEmpty()) {
             int delim = inputLine.indexOf(": ");
             headers.put(inputLine.substring(0, delim).toLowerCase(), inputLine.substring(delim+2));
         }
@@ -72,6 +80,7 @@ public class HTTPResponseReader {
         if (in.read(charBuf, 0, size) < size) {
             throw new IOException("Seem to have lost connection");
         }
+        body = new String(charBuf);
     }
 
     //Returns a string representation of the response

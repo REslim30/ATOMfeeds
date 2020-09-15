@@ -5,6 +5,7 @@ import java.net.*;
 import java.util.*;
 import java.lang.System;
 import main.java.http.*;
+import main.java.atom.TextToAtomParser;
 
 public class ContentServer {
     private static long lamportClock = 0;
@@ -97,13 +98,8 @@ public class ContentServer {
 
             file = new BufferedReader(new InputStreamReader(fileStream));
 
-            String line;
-            StringBuilder bodyBuilder = new StringBuilder();
-            while ((line = file.readLine()) != null)  {
-               bodyBuilder.append(line); 
-               bodyBuilder.append('\n');
-            }
-            String body = bodyBuilder.toString();
+            TextToAtomParser atomParser = new TextToAtomParser(file);
+            String body = atomParser.parseAtom();
             
             //Send the request
             out.print("PUT /atom.xml HTTP/1.1\r\n");
