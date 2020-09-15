@@ -140,6 +140,66 @@ public class AtomParserTest {
         AtomParser parser = new AtomParser(readFile("entry_no_author.xml"));
         parser.parseAtom();
     }
+
+    // ***Pretty Printing Tests***
+    @Test
+    public void printsMinimalAtom() throws IOException, SAXException, InvalidAtomException {
+        AtomParser parser = new AtomParser("<feed><title>test title</title>" + 
+                "<id>123456</id>" + 
+                "<updated>42349</updated></feed>");
+        parser.parseAtom();
+        assertEquals("***Feed***\n" +
+                "title: test title\n" + 
+                "id: 123456\n" + 
+                "updated: 42349\n",
+                parser.getPrettyFeed());
+    }
+
+    @Test
+    public void printsComprehensiveFeed() throws IOException, SAXException, InvalidAtomException {
+        AtomParser parser = new AtomParser("<feed><title>test title</title>" + 
+                "<id>123456</id>" + 
+                "<updated>42349</updated>" +
+                "<subtitle>Description</subtitle>" +
+                "<author><name>Steve</name></author>" + 
+                "<link href=\"www.link.org/index.html\"></link></feed>");
+        parser.parseAtom();
+        assertEquals("***Feed***\n" +
+                "title: test title\n" + 
+                "id: 123456\n" + 
+                "updated: 42349\n" +
+                "subtitle: Description\n" +
+                "author: Steve\n" +
+                "link: www.link.org/index.html\n",
+                parser.getPrettyFeed());
+    }
+
+    @Test
+    public void printsAtomWithEntry() throws IOException, SAXException, InvalidAtomException {
+        AtomParser parser = new AtomParser("<feed><title>test title</title>" + 
+                "<id>123456</id>" + 
+                "<updated>42349</updated>" + 
+                "<entry><title>test entry</title>" + 
+                "<id>1234</id>" +
+                "<author><name>Hawkins</name></author>" + 
+                "<updated>25-28-2008T1234</updated>" + 
+                "<link href=\"www.link.com\"></link>" + 
+                "<summary>Here is a Summary</summary>" + 
+                "</entry></feed>");
+        parser.parseAtom();
+        assertEquals("***Feed***\n" +
+                "title: test title\n" + 
+                "id: 123456\n" + 
+                "updated: 42349\n" +
+                "\n\t***Entry***\n" + 
+                "\ttitle: test entry\n" + 
+                "\tid: 1234\n" + 
+                "\tauthor: Hawkins\n" + 
+                "\tupdated: 25-28-2008T1234\n" + 
+                "\tlink: www.link.com\n" + 
+                "\tsummary: Here is a Summary\n", 
+                parser.getPrettyFeed());
+    }
     
     //Assumes that java is being called from project root
     private String readFile(String fileName) throws IOException {

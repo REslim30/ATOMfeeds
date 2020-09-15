@@ -35,10 +35,10 @@ public class AtomParser {
         doc = builder.parse(input);
         doc.getDocumentElement().normalize();
 
-        verifyAtom(doc);
+        verifyAtom();
     }
 
-    private void verifyAtom(Document doc) throws SAXException, InvalidAtomException {
+    private void verifyAtom() throws SAXException, InvalidAtomException {
         Element root = doc.getDocumentElement();
         if (!root.getTagName().equals("feed"))
             throw new InvalidAtomException("Expected feed element instead of: " + root.getTagName());
@@ -163,6 +163,7 @@ public class AtomParser {
             throw new InvalidAtomException("Author must have a name");
     }
 
+
     //Gets a representation of the Feed
     //Returns null if Document is unitilized
     //Otherwise returns a human readable version
@@ -173,6 +174,51 @@ public class AtomParser {
 
         StringBuilder feedBuilder = new StringBuilder();
         Element feed = doc.getDocumentElement();
-        return "";    
+        feedBuilder.append("***Feed***\n");
+
+        NodeList children = feed.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            Element child = (Element)children.item(i);
+            switch (child.getTagName()) {
+                case "entry":
+                    parsePrettyEntry(feedBuilder, child);
+                    break;
+                case "#text":
+                    break;
+                case "author":
+                    feedBuilder.append("author: " + child.getElementsByTagName("name").item(0).getTextContent() + "\n"); 
+                    break;
+                case "link":
+                    feedBuilder.append("link: " + child.getAttribute("href") + "\n"); 
+                    break;
+                default:
+                    feedBuilder.append(child.getTagName() + ": " + child.getTextContent() + "\n");
+                    break;
+            }
+        }
+
+        return feedBuilder.toString();    
+    }
+
+    void parsePrettyEntry(StringBuilder feedBuilder, Element entry) {
+        feedBuilder.append("\n\t***Entry***\n");
+
+        NodeList children = entry.getChildNodes();
+        for (int i=0; i<children.getLength(); i++) {
+            Element child = (Element)children.item(i);
+            switch (child.getTagName()) {
+                case "author":
+                    feedBuilder.append("\tauthor: " + child.getElementsByTagName("name").item(0).getTextContent() + "\n"); 
+                    break;
+                case "#text":
+                    break;
+                case "link":
+                    feedBuilder.append("\tlink: " + child.getAttribute("href") + "\n"); 
+                    break;
+                default:
+                    feedBuilder.append("\t" + child.getTagName() + ": " + child.getTextContent() + "\n");
+                    break;
+            }
+        }
     }
 }

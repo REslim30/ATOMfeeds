@@ -2,6 +2,8 @@ package main.java.server;
 
 import java.net.*;
 import java.io.*;
+import main.java.atom.*;
+import org.xml.sax.SAXException;
 import java.sql.SQLException;
 import main.java.http.HTTPRequestReader;
 import main.java.http.HTTPResponseWriter;
@@ -56,6 +58,7 @@ public class AggregationResponderThread extends Thread {
 
     //Responds depending on GET or PUT request
     private void respond(HTTPRequestReader reader, HTTPResponseWriter writer) {
+        String lamportClockString = reader.getHeader("lamport-clock");
         //If there's no lamport clock value, send a bad request message
         if (lamportClockString == null) {
             writer.writeResponse(400, "You must include a lamport-clock header inside your request", lamportClock.incrementAndGet());
@@ -77,13 +80,12 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
-
-            //Handle GET and PUT requests
-            if (reader.getMethod().equals("GET")) {
-                handleGET(reader, writer);
-            } else {
-                handlePUT(reader, writer);
-            }     
+        //Handle GET and PUT requests
+        if (reader.getMethod().equals("GET")) {
+            handleGET(reader, writer);
+        } else {
+            handlePUT(reader, writer);
+        }     
     }
     
 
@@ -127,23 +129,45 @@ public class AggregationResponderThread extends Thread {
             return;
         }
 
+        //Ensure Atom content is valid
+        try {
+            AtomParser parser = new AtomParser(reader.getBody());            
+            parser.parseAtom();
+        } catch (InvalidAtomException ae) {
+            System.err.println(ae.getMessage());
+            writer.writeResponse(400,"Invalid Atom: " + ae.getMessage(), lamportClock.incrementAndGet()); 
+            return;
+        } catch (SAXException se) {
+            System.err.println(se.getMessage());
+            writer.writeResponse(400, "Invalid XML: " + se.getMessage() , lamportClock.incrementAndGet());
+            return;
+        } catch (IOException ie) {
+            System.err.println(ie.getMessage());
+            writer.writeResponse(500, "I/O Error on server: " + ie.getMessage() , lamportClock.incrementAndGet());
+            return;
+        }
+
         synchronized(lamportClock) {
             String lamportClockString = reader.getHeader("lamport-clock");
             lamportClock.setMaxAndIncrement(Long.parseLong(lamportClockString));
+
             //Save a feed
             try {
                 System.out.println(reader.getBody());
                 if (storage.saveFeed(socket.getRemoteSocketAddress().toString(), reader.getBody())) {
                     writer.writeResponse(201, "Created new feed", lamportClock.incrementAndGet());
                     System.out.println("Created new feed");
+                    return;
                 } else {
                     writer.writeResponse(200, "Updated feed", lamportClock.incrementAndGet());
                     System.out.println("Updated feed");
+                    return;
                 }
             } catch (SQLException e) {
                 writer.writeResponse(500, "Server Couldn't save your feed" + e.toString(), lamportClock.incrementAndGet());
                 System.out.println("Error while trying to save a feed: " + e.toString());
                 e.printStackTrace();
+                return;
             }
         }
     }
