@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xml:lang="en-US" xmlns="https://www.w3.org/2005/Atom">
+<feed xml:lang="en-US"
+  xmlns="https://www.w3.org/2005/Atom">
   <title>My example feed</title>
   <subtitle>for demonstration purposes</subtitle>
   <link href="www.cs.adelaide.edu.au"></link>
@@ -7,7 +8,6 @@
   <author>
     <name>Santa Claus</name>
   </author>
-  <id>urn::uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>
   <entry>
     <title>Nick sets assignment</title>
     <link href="www.cs.adelaide.edu.au/users/third/ds/"></link>

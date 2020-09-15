@@ -4,9 +4,6 @@
   <subtitle>for demonstration purposes</subtitle>
   <link href="www.cs.adelaide.edu.au"></link>
   <updated>2015-08-07T18:30:02Z</updated>
-  <author>
-    <name>Santa Claus</name>
-  </author>
   <id>urn::uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>
   <entry>
     <title>Nick sets assignment</title>
@@ -16,6 +13,9 @@
     <summary>here is some plain text. Because I'm not completely evil, you can assume that this will always be less than 1000 characters. And, as I've said before, it will always be plain text.</summary>
   </entry>
   <entry>
+  <author>
+    <name>Santa Claus</name>
+  </author>
     <title>second feed entry</title>
     <link href="www.cs.adelaide.edu.au/users/third/ds/14ds2s1"></link>
     <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6b</id>

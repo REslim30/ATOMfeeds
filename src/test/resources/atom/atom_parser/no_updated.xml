@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feed xml:lang="en-US" xmlns="https://www.w3.org/2005/Atom">
+<feed xml:lang="en-US"
+  xmlns="https://www.w3.org/2005/Atom">
   <title>My example feed</title>
   <subtitle>for demonstration purposes</subtitle>
   <link href="www.cs.adelaide.edu.au"></link>
-  <updated>2015-08-07T18:30:02Z</updated>
   <author>
     <name>Santa Claus</name>
   </author>
