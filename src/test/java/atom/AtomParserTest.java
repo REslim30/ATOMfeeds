@@ -199,6 +199,7 @@ public class AtomParserTest {
                 "\tlink: www.link.com\n" + 
                 "\tsummary: Here is a Summary\n", 
                 parser.getPrettyFeed());
+
     }
     
     //Assumes that java is being called from project root

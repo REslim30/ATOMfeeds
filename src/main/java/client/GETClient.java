@@ -106,7 +106,7 @@ public class GETClient {
     private static boolean receiveResponse(BufferedReader in) throws IOException {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
-        System.out.println(response.getBody());
+        printResponse(response.getBody());
 
         String lamportClockString = response.getHeader("lamport-clock");
         if (lamportClockString != null && lamportClockString.matches("\\d*")) {
@@ -118,8 +118,15 @@ public class GETClient {
         return (connection == null || connection.equals("keep-alive"));
     }
 
+    //TODO:
+    private static void printResponse(String body) {
+        
+    }
+
     //Logs a response with lamportClock
     private static void log(String input) {
         System.out.println("Lamport Clock = " + Long.toString(lamportClock) + "    ->   " + input);
     }
+
+
 }
