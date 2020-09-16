@@ -18,6 +18,7 @@ public class AggregationServer {
             System.err.println("If <port number> is empty, the default is 4567");
             System.exit(1);
         }
+        System.out.println("Port unspecified, port is now set to 4567");
 
         //Create a storage manager for threads to share
         AggregationStorageManager storage = null;
