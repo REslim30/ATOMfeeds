@@ -4,18 +4,23 @@ package client;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import org.xml.sax.SAXException;
+
+import atom.InvalidAtomException;
+import atom.AtomParser;
 import http.*;
 
 
 
 public class GETClient {
     private static long lamportClock = 0;
+    private static String resource = null;
     public static void main(String[] args) {
         
         //Parse hostname and port number
         if (args.length != 1) {
             System.err.println(
-                "Usage: java GETClient <host name>:<port number>");
+                "Usage: java GETClient <host name>:<port number><resource>");
             System.exit(1);
         }
 
@@ -23,9 +28,20 @@ public class GETClient {
         URL url = URLParser.parseURL(args[0]);
         String hostName = url.getHost();
         int portNumber = url.getPort();
+        resource = url.getPath();
+        if (portNumber == -1) {
+            System.out.println("Port Number unspecified. Default is 80.");
+            portNumber = 80;
+        }
+        if (resource.isBlank()) {
+            System.out.println("Resource unspecified. Resource set to '/'");
+            resource = "/";
+        }
+
+
 
         //Connect to host
-        System.out.println("Connecting to:" + hostName + ':' + portNumber);
+        System.out.println("Connecting to " + hostName + ':' + portNumber);
         try (
             Socket socket = new Socket(hostName, portNumber);
             PrintWriter out =
@@ -87,7 +103,7 @@ public class GETClient {
 
     //Sends a basic HTTP request
     private static void sendRequest(PrintWriter out, String hostName) throws IOException {
-            out.print("GET / HTTP/1.1\r\n");
+            out.print("GET " + resource + " HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
             out.print("User-Agent: ATOMGETClient/1/0\r\n");
             out.print("Connection: keep-alive\r\n");
@@ -118,9 +134,40 @@ public class GETClient {
         return (connection == null || connection.equals("keep-alive"));
     }
 
-    //TODO:
+    //Reads in aggregated atom documents.
+    //Prints to std out
+    //Throws an InvalidAtomException on invalid Atom
+    //Throws an SAXException on invalid XML
+    //Throws an IOException on any IO errors
+    //Assumes aggregated atom documents are separated by newline characters
     private static void printResponse(String body) {
-        
+         try (Scanner scanner = new Scanner(body)) {
+             while (scanner.hasNext()) {
+                 StringBuilder atomDocument = new StringBuilder();
+                 while (scanner.hasNextLine()) {
+                     String line = scanner.nextLine();
+                     atomDocument.append(line);
+                     atomDocument.append("\n");
+                     if (line.matches("</feed>$"))
+                         break;
+                 }
+
+                 //Parses Atom
+                 try {
+                     AtomParser parser = new AtomParser(atomDocument.toString());
+                     parser.parseAtom();
+                     System.out.println(parser.getPrettyFeed());
+                 } catch (IOException ioe) {
+                     System.err.println(ioe.getMessage());
+                     ioe.printStackTrace();
+                 } catch (SAXException saxe) {
+                     System.err.println("Invalid XML: " + saxe.getMessage());
+                 } catch (InvalidAtomException atome) {
+                     System.err.println("Invalid Atom: " + atome.getMessage());
+                 }
+             }
+         }
+
     }
 
     //Logs a response with lamportClock

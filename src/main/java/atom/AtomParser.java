@@ -178,21 +178,21 @@ public class AtomParser {
 
         NodeList children = feed.getChildNodes();
         for (int i=0; i<children.getLength(); i++) {
-            Element child = (Element)children.item(i);
-            switch (child.getTagName()) {
+            Node child = children.item(i);
+            switch (child.getNodeName()) {
                 case "entry":
                     parsePrettyEntry(feedBuilder, child);
                     break;
                 case "#text":
                     break;
                 case "author":
-                    feedBuilder.append("author: " + child.getElementsByTagName("name").item(0).getTextContent() + "\n"); 
+                    feedBuilder.append("author: " + ((Element)child).getElementsByTagName("name").item(0).getTextContent() + "\n"); 
                     break;
                 case "link":
-                    feedBuilder.append("link: " + child.getAttribute("href") + "\n"); 
+                    feedBuilder.append("link: " + ((Element)child).getAttribute("href") + "\n"); 
                     break;
                 default:
-                    feedBuilder.append(child.getTagName() + ": " + child.getTextContent() + "\n");
+                    feedBuilder.append(child.getNodeName() + ": " + child.getTextContent() + "\n");
                     break;
             }
         }
@@ -200,23 +200,23 @@ public class AtomParser {
         return feedBuilder.toString();    
     }
 
-    void parsePrettyEntry(StringBuilder feedBuilder, Element entry) {
+    void parsePrettyEntry(StringBuilder feedBuilder, Node entry) {
         feedBuilder.append("\n\t***Entry***\n");
 
         NodeList children = entry.getChildNodes();
         for (int i=0; i<children.getLength(); i++) {
-            Element child = (Element)children.item(i);
-            switch (child.getTagName()) {
+            Node child = children.item(i);
+            switch (child.getNodeName()) {
                 case "author":
-                    feedBuilder.append("\tauthor: " + child.getElementsByTagName("name").item(0).getTextContent() + "\n"); 
+                    feedBuilder.append("\tauthor: " + ((Element)child).getElementsByTagName("name").item(0).getTextContent() + "\n"); 
                     break;
                 case "#text":
                     break;
                 case "link":
-                    feedBuilder.append("\tlink: " + child.getAttribute("href") + "\n"); 
+                    feedBuilder.append("\tlink: " + ((Element)child).getAttribute("href") + "\n"); 
                     break;
                 default:
-                    feedBuilder.append("\t" + child.getTagName() + ": " + child.getTextContent() + "\n");
+                    feedBuilder.append("\t" + child.getNodeName() + ": " + child.getTextContent() + "\n");
                     break;
             }
         }
