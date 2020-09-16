@@ -6,12 +6,12 @@ persistent connections that support a subset of Atom elements (defined as per RF
 the assignment specification). Written in Java 8.
 
 ## How to run
-    - All processes should be run from the main parent directory. (Where this README.md is located)
-    - All processes should be run using the provided make commands.
-    - These commands are:
-        make server port=<port_number>             -> Starts the aggregation server on port <port_number>
-        make content url=<url> file=<file_name>    -> Starts the content server, to send a PUT request to <url> with file <file_name>
-        make client url=<url>                      -> Starts the GET client, to send a GET request to <url>
+All processes should be run from the main parent directory. (Where this README.md is located) \
+All processes should be run using the provided make commands. \
+These commands are: \
+    make server port=<port_number>             -> Starts the aggregation server on port <port_number>
+    make content url=<url> file=<file_name>    -> Starts the content server, to send a PUT request to <url> with file <file_name>
+    make client url=<url>                      -> Starts the GET client, to send a GET request to <url>
 
     - If you wanted to add extra files for the Content server add a text based file to:
         src/main/resources/content
