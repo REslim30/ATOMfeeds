@@ -18,11 +18,14 @@ public class ContentServer {
             System.exit(1);
         }
 
-        //TODO: Show user error when hostName/PortNumber is invalild
         URL url = URLParser.parseURL(args[0]);
         String hostName = url.getHost();
         int portNumber = url.getPort();
         String fileName = args[1];
+        if (portNumber == -1) {
+            System.out.println("Port number unspecified, port number is now set to 4567");
+            portNumber = 4567;
+        }
 
         //Connect to host
         System.out.println("Connecting to:" + hostName + ':' + portNumber);

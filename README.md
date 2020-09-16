@@ -1,20 +1,42 @@
 
-Notes:
-- HTTP/1.1 (RFC 7230)
-    - Two Options: Non-persistent
-    - Array of strings.
-    - Handles concurrent requests
+# Assignment 2
+#### By a1742494 - Huy Gia Do Vu
+An Atom syndication system communicating between eachother using HTTP/1.1 (RFC 7230)
+persistent connections that support a subset of Atom elements (defined as per RFC-4287 and
+the assignment specification). Written in Java 8.
+
+## How to run
+    - All processes should be run from the main parent directory. (Where this README.md is located)
+    - All processes should be run using the provided make commands.
+    - These commands are:
+        make server port=<port_number>             -> Starts the aggregation server on port <port_number>
+        make content url=<url> file=<file_name>    -> Starts the content server, to send a PUT request to <url> with file <file_name>
+        make client url=<url>                      -> Starts the GET client, to send a GET request to <url>
+
+    - If you wanted to add extra files for the Content server add a text based file to:
+        src/main/resources/content
+        
+    - This project also includes tests:
+        make test_server                           -> Runs aggregation server tests. 
+        make test_slow_server                      -> Runs aggregation server tests that require explicit waiting.
+        make test_http                             -> Runs tests that involve HTTP helpers.
+        make test_atom                             -> Runs tests that involve Atom helpers.
+
+    - If you wanted to see these test cases, see:
+        src/test/java
+    - Some tests read in files from:
+        src/test/resources
+
+## Adding Files
+    - The following project follows the Maven project directory structure:
+        src        -> source files & resources.
+        target     -> build folder (.class)
 
 ### Notes on external libraries
     - I used the following external libraries:
         - Junit -> for unit tests.
         - sqlite-jdbc -> for maintaining feeds.
     - Please let me know if these are not allowed.
-
-
-### Notes on Running
-    - All processes should be run from the main parent directory. (Where this README.md is located)
-
 
 ### Note on lamport clocks
     - lamport clocks on the server are updated for:

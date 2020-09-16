@@ -21,17 +21,6 @@ public class AggregationStorageManager {
                     .getAbsolutePath()
                         .toString());
     }
-
-    //Destructor
-    protected void finalize() {
-        try {
-            if (connection != null)
-                connection.close();
-        } catch (SQLException e) {
-            System.err.println("Error while destructing AggregationStorageManager object");
-            e.printStackTrace();
-        }
-    }
     
 
     //Saves a feed in SQL database
@@ -95,5 +84,9 @@ public class AggregationStorageManager {
         //Get the time of 12 seconds ago
         long oldTime = (new Date()).getTime() - (12*1000);
         statement.executeUpdate("DELETE from feeds WHERE date <= " + oldTime);
+    }
+
+    public synchronized void close() throws SQLException {
+        connection.close();
     }
 }

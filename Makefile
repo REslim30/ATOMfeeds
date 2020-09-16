@@ -24,7 +24,7 @@ ifeq ($(url),)
 	@echo "<url>: <host_name>:<port_number>"
 	@echo
 else
-	$(run) client.GETClient $(url)
+	@$(run) client.GETClient $(url)
 endif
 
 #AggregationServer
@@ -32,7 +32,6 @@ server: compile_server
 ifeq ($(port),)
 	@echo
 	@echo "Usage: make server port=<port_number>"
-	@echo "if <port_number> is left empty, then port is set to 4567"
 	@echo
 endif
 	@$(run) server.AggregationServer $(port)
@@ -44,7 +43,7 @@ compile_test=javac $(test_class_flag) -d target/classes/
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
 test_http: compile_test_http
-	$(run_test) http.URLParserTest
+	@$(run_test) http.URLParserTest
 	$(run_test) http.HTTPResponseWriterTest
 
 compile_test_http: compile_http src/test/java/http/*.java
@@ -64,7 +63,7 @@ test_atom: compile_test_atom
 	$(run_test) atom.AtomParserTest
 
 compile_test_atom: compile_atom src/test/java/atom/*.java
-	$(compile_test) src/test/java/atom/*.java 
+	@$(compile_test) src/test/java/atom/*.java 
 
 
 #***Compliation***
@@ -83,4 +82,4 @@ compile_http: src/main/java/http/*.java
 
 #Atom helpers
 compile_atom: src/main/java/atom/*.java
-	$(compile) $?
+	@$(compile) $?

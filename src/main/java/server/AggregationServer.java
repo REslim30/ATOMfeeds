@@ -42,5 +42,13 @@ public class AggregationServer {
             System.err.println("Could not listen on port " + portNumber);
             System.exit(-1);
         }
+
+        //Close the storage manager
+        try {
+            storage.close();
+        } catch (SQLException sqlE) {
+            System.err.println(sqlE.getMessage());
+            sqlE.printStackTrace();
+        }
     }
 }

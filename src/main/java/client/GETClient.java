@@ -17,21 +17,20 @@ public class GETClient {
     private static String resource = null;
     public static void main(String[] args) {
         
-        //Parse hostname and port number
+        //Parse hostname and port number and resource
         if (args.length != 1) {
             System.err.println(
                 "Usage: java GETClient <host name>:<port number><resource>");
             System.exit(1);
         }
 
-        //TODO: Show user error when hostName/PortNumber is invalild
         URL url = URLParser.parseURL(args[0]);
         String hostName = url.getHost();
         int portNumber = url.getPort();
         resource = url.getPath();
         if (portNumber == -1) {
-            System.out.println("Port Number unspecified. Default is 80.");
-            portNumber = 80;
+            System.out.println("Port Number unspecified. Default is 4567.");
+            portNumber = 4567;
         }
         if (resource.isBlank()) {
             System.out.println("Resource unspecified. Resource set to '/'");
