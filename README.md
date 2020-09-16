@@ -62,7 +62,7 @@ All requests are responded to in order of the request being "received". Note: th
 
 Once the server has verified these conditions are true, the server considers the request as received. The server will then respond to the requests in this order. This is opposed to considering the request as received as soon as the very first bit of the request has arrived. 
 
-This was a trade of made to reduce the average latency of requests (as it allows for more parallel processing) and also for a sense of fairness.  It would be wasteful and unfair if a valid GET request had to wait for the server to finish parsing and responding to an invalid PUT request. 
+This was a tradeoff made to reduce the average latency of requests (as it allows for more parallel processing) and also for a sense of fairness.  It would be wasteful and unfair if a valid GET request had to wait for the server to finish parsing and responding to an invalid PUT request. 
 
 In essence, the server ensures logical ordering amongst valid requests, but handles invalid requests in any order. Please let me know if this is unacceptable.
 
