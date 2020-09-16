@@ -67,13 +67,13 @@ compile_test_atom: compile_atom src/test/java/atom/*.java
 
 
 #***Compliation***
-compile_client: src/main/java/client/*java compile_http
+compile_client: src/main/java/client/*java compile_http compile_atom
 	@$(compile) src/main/java/client/*java
 
-compile_content: src/main/java/content/*java compile_http
+compile_content: src/main/java/content/*java compile_http compile_atom
 	@$(compile) src/main/java/content/*java
 
-compile_server: src/main/java/server/*.java compile_http
+compile_server: src/main/java/server/*.java compile_http compile_atom
 	@$(compile) src/main/java/server/*java
 
 #HTTP helpers
