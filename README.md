@@ -45,10 +45,11 @@ I used the following external libraries:
 
 #### Note on lamport clocks
 lamport clocks on the server are updated for:
-- receiving requests.
-- sending requests.
-- aggregating feeds.
-- saving feeds.
+
+   - receiving requests.
+   - sending requests.
+   - aggregating feeds.
+   - saving feeds.
 
 
 All requests are responded to in order of the request being "received". Note: the server only consideres a request to be "received" when the server has verified the following conditions: 
