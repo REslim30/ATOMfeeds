@@ -15,6 +15,7 @@ import http.*;
 public class GETClient {
     private static long lamportClock = 0;
     private static String resource = null;
+
     public static void main(String[] args) {
         
         //Parse hostname and port number and resource

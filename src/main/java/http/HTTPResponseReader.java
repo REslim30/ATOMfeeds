@@ -30,8 +30,6 @@ public class HTTPResponseReader {
             throw new IOException("Seem to have lost connection");
 
         statusLine = new String[3];
-        
-        System.err.println(inputLine);
 
         //Parses StatusLine
         int prevSpace = 0;
@@ -60,6 +58,7 @@ public class HTTPResponseReader {
 
     //Parses the header fields of the response
     //Assumes headers are delimited by ': '
+    //Is case insensitive
     private void parseHeaders() throws IOException {
         String inputLine;
         while ((inputLine = in.readLine()) != null && !inputLine.isEmpty()) {
@@ -80,7 +79,11 @@ public class HTTPResponseReader {
         if (in.read(charBuf, 0, size) < size) {
             throw new IOException("Seem to have lost connection");
         }
-        body = new String(charBuf);
+        if (size == 0) {
+            body = null;
+        } else {
+            body = new String(charBuf);
+        }
     }
 
     //Returns a string representation of the response
@@ -96,6 +99,7 @@ public class HTTPResponseReader {
     }
 
     //Returns the current status code.
+    //Throws RuntimeException if statusLine is null
     public int getStatusCode() {
         if (statusLine == null || statusLine.length != 3) 
             throw new RuntimeException("HTTPResponseReader: tried to getStatusCode but no statusLine available");
@@ -104,6 +108,7 @@ public class HTTPResponseReader {
     }
 
     //Returns the current status message.
+    //Throws RuntimeException if statusMsg is null
     public String getStatusMsg() {
         if (statusLine == null) 
             throw new RuntimeException("Tried to getStatusMsg but invalid statusLine");
@@ -112,10 +117,8 @@ public class HTTPResponseReader {
     }
 
     //Returns the body of the message
+    //Returns null if body is unset
     public String getBody() {
-        if (body == null) 
-            throw new RuntimeException("Tried to getBody but body is null");
-        
         return body;
     }
 
