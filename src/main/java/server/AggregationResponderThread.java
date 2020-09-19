@@ -91,7 +91,7 @@ public class AggregationResponderThread extends Thread {
 
     //Sends a response for a GET request
     private void handleGET(HTTPRequestReader reader, HTTPResponseWriter writer) {
-        if (reader.getURL().equals("/")) {
+        if (!reader.getURL().equals("/")) {
             writer.writeResponse(404, "GET resource does not exist. Only resource available is '/'", lamportClock.incrementAndGet());
             return;
         }

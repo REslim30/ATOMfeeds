@@ -46,6 +46,7 @@ test_http: compile_test_http
 	@$(run_test) http.URLParserTest
 	@$(run_test) http.HTTPResponseWriterTest
 	@$(run_test) http.HTTPResponseReaderTest
+	@$(run_test) http.HTTPRequestReaderTest
 
 compile_test_http: compile_http src/test/java/http/*.java
 	@$(compile_test) src/test/java/http/*.java

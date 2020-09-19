@@ -42,6 +42,7 @@ public class HTTPRequestReader {
 
     //Parses the header fields of the response
     //Assumes headers are delimited by ": "
+    //Is case insensitive
     private void parseHeaders() throws IOException {
         String inputLine;
         while ((inputLine = in.readLine()) != null && !inputLine.isEmpty()) {
@@ -87,12 +88,12 @@ public class HTTPRequestReader {
         return requestLine[0];
     }
 
-    //Returns the current status message.
+    //Returns the current resource URL
     public String getURL() {
         if (requestLine == null) 
             throw new RuntimeException("HTTPRequestReader: tried to getURL but no requestLine is null");
         
-        return requestLine[2];
+        return requestLine[1];
     }
 
     //Returns the body of the message
