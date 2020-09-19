@@ -85,3 +85,8 @@ compile_http: src/main/java/http/*.java
 #Atom helpers
 compile_atom: src/main/java/atom/*.java
 	@$(compile) $?
+
+
+#Zips relevant files
+zip:
+	zip -r project.zip Makefile README.md designs src target
