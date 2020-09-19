@@ -36,14 +36,13 @@ The following project follows the Maven project directory structure:
     src        -> source files & resources.
     target     -> build folder (.class)
 
-## Notes
-#### Notes on external libraries
+### Notes on external libraries
 I used the following external libraries:
     
     Junit          -> for unit tests.
     sqlite-jdbc    -> for maintaining feeds.
 
-#### Note on lamport clocks
+### Note on lamport clocks
 lamport clocks on the server are updated for:
 
    - receiving requests.
@@ -65,6 +64,24 @@ Once the server has verified these conditions are true, the server considers the
 This was a tradeoff made to reduce the average latency of requests (as it allows for more parallel processing) and also for a sense of fairness.  It would be wasteful and unfair if a valid GET request had to wait for the server to finish parsing and responding to an invalid PUT request. 
 
 In essence, the server ensures logical ordering amongst valid requests, but handles invalid requests in any order. Please let me know if this is unacceptable.
+
+### Note on Testing
+I wasn't able to get to testing the following components:
+
+   - client
+   - content server
+   - aggregation server
+
+My plan for the client and content server:
+
+   - set methods to protected to expose methods for individual testing.
+   - Use the System Rules Junit library to test the main function.
+   - for each test case, create a server socket on another thread.
+   - Use the System.setIn call to specify the inputs the client and content server use.
+   
+I currently am unsure about the aggregation server testing. Any tips/examples will be appreciated.
+
+Otherwise, all utility functions have been tested.
 
 
 #### Contact Me
