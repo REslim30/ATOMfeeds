@@ -1,4 +1,0 @@
-title:test
-updated:2007-03-25T03:49:00Z
-id:tag:starling.us,2007-02-15:/starling.us/starling_us_atom.xml
-author:steve
