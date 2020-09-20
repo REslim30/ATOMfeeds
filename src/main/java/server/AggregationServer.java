@@ -21,13 +21,7 @@ public class AggregationServer {
         System.out.println("Port unspecified, port is now set to 4567");
 
         //Create a storage manager for threads to share
-        AggregationStorageManager storage = null;
-        try {
-            storage = new AggregationStorageManager();
-        } catch (SQLException e) {
-            System.err.println("Error while trying to create AggregationStorageManager");
-            e.printStackTrace();
-        }
+        AggregationStorageManager storage = new AggregationStorageManager();
 
         //Create a thread that deletes 12 second old feed every second
         new AggregationDeleterThread(storage).start();
@@ -44,12 +38,5 @@ public class AggregationServer {
             System.exit(-1);
         }
 
-        //Close the storage manager
-        try {
-            storage.close();
-        } catch (SQLException sqlE) {
-            System.err.println(sqlE.getMessage());
-            sqlE.printStackTrace();
-        }
     }
 }
