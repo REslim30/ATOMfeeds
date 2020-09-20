@@ -92,5 +92,5 @@ zip: clean
 	zip -r project.zip Makefile README.md designs src target
 
 clean:
-	rm target/classes/*
-	rm target/test-classes/*
+	rm -r --force target/classes/*
+	rm -r --force target/test-classes/*
