@@ -39,7 +39,7 @@ endif
 
 #*** Tests ***
 test_class_flag=-cp "target/classes/:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar"
-compile_test=javac $(test_class_flag) -d target/classes/
+compile_test=javac $(test_class_flag) -d target/test-classes/
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
 test_http: compile_test_http
@@ -89,4 +89,6 @@ compile_atom: src/main/java/atom/*.java
 
 #Zips relevant files
 zip:
+	rm -r target/classes
+	rm -r target/test-classes
 	zip -r project.zip Makefile README.md designs src target
