@@ -114,7 +114,7 @@ public class AggregationResponderThread extends Thread {
 
     //Sends a response for a PUT request
     private void handlePUT(HTTPRequestReader reader, HTTPResponseWriter writer) {
-        if (reader.getURL().equals("/atom.xml")) {
+        if (!reader.getURL().equals("/atom.xml")) {
             writer.writeResponse(404, "PUT resource does not exist. Only resource available is '/atom.xml'", lamportClock.incrementAndGet());
             return;
         }

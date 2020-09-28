@@ -33,7 +33,7 @@ public class GETClient {
             System.out.println("Port Number unspecified. Default is 4567.");
             portNumber = 4567;
         }
-        if (resource.isBlank()) {
+        if (resource.isEmpty()) {
             System.out.println("Resource unspecified. Resource set to '/'");
             resource = "/";
         }
@@ -141,6 +141,9 @@ public class GETClient {
     //Throws an IOException on any IO errors
     //Assumes aggregated atom documents are separated by newline characters
     private static void printResponse(String body) {
+        if (body == null) {
+            return;
+        }
          try (Scanner scanner = new Scanner(body)) {
              while (scanner.hasNext()) {
                  StringBuilder atomDocument = new StringBuilder();

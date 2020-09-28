@@ -88,7 +88,15 @@ compile_atom: src/main/java/atom/*.java
 
 
 #Zips relevant files
+<<<<<<< HEAD
 zip:
 	rm -r target/classes
 	rm -r target/test-classes
+=======
+zip: clean
+>>>>>>> 28b5fc237ad4c968c954d488793749d8144e4764
 	zip -r project.zip Makefile README.md designs src target
+
+clean:
+	rm -r --force target/classes/*
+	rm -r --force target/test-classes/*
