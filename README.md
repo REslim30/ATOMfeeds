@@ -8,17 +8,17 @@ An Atom syndication system communicating between eachother using HTTP/1.1 (RFC 7
 There are 3 main processes within this system:
 
 1. AggregationServer
-
+```
     The ATOM syndication server that saves PUT requests, and delivers GET requests.
-
+```
 2. ContentServer
-
+```
     The content server that sends PUT requests to a web-server.
-
+```
 3. GETClient
-
+```
     The client that sends GET requests to a web-server.
-
+```
 
 ### How to run
 All processes should be run from the main parent directory (Where this README.md is located) using the provided make commands:
