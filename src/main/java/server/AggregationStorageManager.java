@@ -7,6 +7,12 @@ import java.sql.*;
 
 /**
  * AggregationStorageManager
+ * 
+ * Static class for access to database.
+ * All threads must use this class to access the database.
+ * Doing so ensures mutual exclusion.
+ * 
+ * Utilizes SQLite.
  */
 public class AggregationStorageManager {
     //Gets a connection from the database

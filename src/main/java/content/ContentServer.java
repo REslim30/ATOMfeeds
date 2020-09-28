@@ -7,6 +7,15 @@ import java.lang.System;
 import http.*;
 import atom.TextToAtomParser;
 
+
+/**
+ * ContentServer
+ * 
+ * Sends an ATOM document to a web-server via a HTTP PUT request.
+ * Gives user controls via stdin
+ * 
+ * Supports persistent connections
+ */
 public class ContentServer {
     private static long lamportClock = 0;
 

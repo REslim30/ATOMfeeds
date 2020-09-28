@@ -8,6 +8,8 @@ import org.junit.Test;
 
 /**
  * HTTPRequestReaderTest
+ * 
+ * Tests for the HTTPRequestReader class.
  */
 public class HTTPRequestReaderTest {
 

@@ -11,6 +11,12 @@ import java.io.*;
 
 import java.sql.*;
 
+/**
+ * AggregationStorageManagerSlowTest
+ * 
+ * Tests for the AggregationStorageManager. Specifically ones that require explicit waiting
+ * to verify. (E.g. waiting 12 seconds after a PUT request for deletion)
+ */
 public class AggregationStorageManagerSlowTest {
     private final static String file = new File("src/main/resources/server/aggregation.db").getAbsolutePath().toString();
     Connection connection = null;

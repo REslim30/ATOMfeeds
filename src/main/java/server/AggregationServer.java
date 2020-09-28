@@ -5,6 +5,13 @@ import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
 
+/**
+ * AggregationServer
+ * 
+ * The main thread of the AggregationServer.
+ * Starts AggregationDeleterThread
+ * Listens and Binds new connections to new AggregationResponderThreads.
+ */
 public class AggregationServer { 
     private static LamportClock lamportClock = new LamportClock(0);
     public static void main(String[] args) {

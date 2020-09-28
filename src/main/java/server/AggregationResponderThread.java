@@ -10,7 +10,10 @@ import http.HTTPResponseWriter;
 
 /**
  * AggregationResponderThread
- * Listens and responds to a single client
+ * 
+ * Listens and Responds to a single connection.
+ * This is where all of the policies for handling requests
+ * reside.
  */
 public class AggregationResponderThread extends Thread {
     //needed to handle lamport clocks that are of equal value

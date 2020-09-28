@@ -4,6 +4,10 @@ import java.sql.*;
 
 /**
  * AggregationDeleterThread
+ * 
+ * Thread class that queries database every second to remove
+ * old feeds. Removes feeds from content servers that have not been
+ * in contact for 12 seconds.
  */
 public class AggregationDeleterThread extends Thread {
     private AggregationStorageManager storage;

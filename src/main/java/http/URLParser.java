@@ -3,7 +3,11 @@ package http;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-//Class that holds URL parsing methods
+/**
+ * URLParser
+ * 
+ * Static class that holds method to pass a URL from string.
+ */
 public class URLParser {
     //Passes URL from the formats specified in assignment spec
     public static URL parseURL(String input) {

@@ -8,6 +8,7 @@ import org.junit.Test;
 
 /**
  * TextToAtomParserTest
+ * 
  * Tests for the TextToAtomParser object.
  * Note: A tradeoff was made between using String.contains
  * and strict equals. Using String.contains means that

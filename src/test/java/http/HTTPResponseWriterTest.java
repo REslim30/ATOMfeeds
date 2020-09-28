@@ -10,6 +10,8 @@ import java.io.*;
 
 /**
  * HTTPResponseWriterTest
+ * 
+ * Tests for the HTTPResponseWriter class
  */
 public class HTTPResponseWriterTest {
 

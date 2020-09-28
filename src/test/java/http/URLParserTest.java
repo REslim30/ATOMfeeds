@@ -9,6 +9,8 @@ import org.junit.Test;
 
 /**
  * URLParserTest
+ * 
+ * Tests for the URLParser class
  */
 public class URLParserTest {
     @Test  

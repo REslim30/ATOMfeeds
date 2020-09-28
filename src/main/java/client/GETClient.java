@@ -11,7 +11,15 @@ import atom.AtomParser;
 import http.*;
 
 
-
+/** 
+ * GETClient
+ * 
+ * Client that sends a HTTP GET request to
+ * the / resource for a web server.
+ * Gives user controls via stdin
+ * 
+ * Supports persistent connections.
+*/
 public class GETClient {
     private static long lamportClock = 0;
     private static String resource = null;

@@ -9,6 +9,8 @@ import org.junit.Test;
 
 /**
  * HTTPResponseReaderTest
+ * 
+ * Tests for the HTTPResponseReader class
  */
 public class HTTPResponseReaderTest {
 

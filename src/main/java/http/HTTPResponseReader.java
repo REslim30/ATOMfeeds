@@ -4,7 +4,13 @@ import java.io.*;
 import java.util.*;
 import java.lang.StringBuilder;
 
-//Reads in a single HTTP response
+/**
+ * HTTPResponseReader
+ * 
+ * Utility class for reading in a single HTTP response message
+ * Takes in a BufferedReader which should hold the HTTP request to be parsed
+ * Throws an IOException on any invalid HTTP errors
+ */
 public class HTTPResponseReader {
     private BufferedReader in;
 

@@ -10,10 +10,10 @@ import java.io.*;
  * <feedElement>*(entry\n<entryElement>*)*
  *
  * Where <feedElement> is:
- * (title|subtitle|link|updated|author|name|id):<value>\n
+ * (title|subtitle|link|updated|author|id):<value>\n
  *
  * Where <entryElement> is:
- * (
+ * (title|summary|link|updated|author|id):<value>\n
  *
  *
  * Also assumes that the contents of each element is text (not html nor xhtml).

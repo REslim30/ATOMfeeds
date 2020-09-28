@@ -11,6 +11,8 @@ import java.sql.*;
 
 /**
  * AggregationStorageManagerTest
+ * 
+ * Tests for the AggregationStorageManager class.
  */
 public class AggregationStorageManagerTest {
     private final static String file = new File("src/main/resources/server/aggregation.db").getAbsolutePath().toString();

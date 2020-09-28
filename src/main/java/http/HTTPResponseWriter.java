@@ -5,7 +5,8 @@ import java.net.*;
 
 /**
  * HTTPResponseWriter
- * Writes a HTTP response to a buffered output stream.
+ * 
+ * Utility class that writes a HTTP response to a buffered output stream.
  * Assumes HTTP 1.1 and is working with application/atom+xml; charset=utf-8
  */
 public class HTTPResponseWriter {

@@ -12,6 +12,7 @@ import org.junit.Test;
 
 /**
  * AtomParserTest
+ * 
  * Mainly tests for checking valid
  * Atom. Involves a lot of Exception checking
  */

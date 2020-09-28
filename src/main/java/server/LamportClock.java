@@ -2,7 +2,8 @@ package server;
 
 /**
  * LamportClock
- * A counter with atomic operations
+ * 
+ * A custom counter with atomic operations.
  */
 public class LamportClock {
       private long value;  
