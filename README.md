@@ -10,7 +10,9 @@ There are 3 main processes within this system:
 1. AggregationServer
 ```
     The ATOM syndication server that saves PUT requests, and delivers GET requests.
-        Restores itself on any crashes.
+        Restores itself on any unexpected crashes.
+        Probes client to ensure they haven't crashed
+        Terminates connection if no response in 15 seconds.
 ```
 2. ContentServer
 ```

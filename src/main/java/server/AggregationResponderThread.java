@@ -22,6 +22,16 @@ public class AggregationResponderThread extends Thread {
     private AggregationStorageManager storage;
 
     public AggregationResponderThread(Socket socket, LamportClock lamportClock, AggregationStorageManager storage) {
+        //
+        try {
+            socket.getKeepAlive();
+            socket.setSoTimeout(15000);
+        } catch (SocketException soe) {
+            System.err.println("Couldn't set Keep-Alive or Timeouts on");
+            System.err.println(soe.getMessage());
+            soe.printStackTrace();
+        }
+
         this.socket = socket;
         this.lamportClock = lamportClock;
         this.storage = storage;
@@ -38,17 +48,29 @@ public class AggregationResponderThread extends Thread {
                     socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream());
         ) {
-            while (true) {
-                reader = new HTTPRequestReader(in);
-                reader.readRequest();
-                writer = new HTTPResponseWriter(out);
+            boolean shutdown = false;
+            while (!shutdown) {
+                try {
+                    reader = new HTTPRequestReader(in);
+                    reader.readRequest();
+                    writer = new HTTPResponseWriter(out);
 
-                System.out.println("Message from:" + socket.getRemoteSocketAddress().toString());
+                    System.out.println("Message from:" + socket.getRemoteSocketAddress().toString());
 
-                respond(reader, writer);
-                //end connection if client wants to end connection
-                if (reader.getHeader("connection") != null && reader.getHeader("connection").equals("close"))
-                    break;
+                    respond(reader, writer);
+                    //end connection if client wants to end connection
+                    if (reader.getHeader("connection") != null && reader.getHeader("connection").equals("close"))
+                        shutdown = true;
+
+                } catch (SocketTimeoutException se) {
+                    //If we've been blocked for 15 seconds, close connection
+                    System.err.println("Connection: " + socket.getRemoteSocketAddress().toString() + "  -  15 seconds have elapsed and no request");
+                    System.err.println("Closing Connection");
+                    shutdown = true;
+                } catch (IOException ioe) {
+                    //Possible HTTP syntax/ atom protocol error
+                    System.err.println("Connection: " + socket.getRemoteSocketAddress().toString() + "  -  " + ioe.getMessage());
+                }             
             }
 
             socket.close();
