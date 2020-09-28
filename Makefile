@@ -34,7 +34,11 @@ ifeq ($(port),)
 	@echo "Usage: make server port=<port_number>"
 	@echo
 endif
-	@$(run) server.AggregationServer $(port)
+	@until $(run) server.AggregationServer $(port); do \
+		echo "AggregationServer crashed with exit code $$?. Respawning.." >&2 ; \
+		sleep 1; \
+	done
+
 
 
 #*** Tests ***
