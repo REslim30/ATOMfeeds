@@ -40,6 +40,8 @@ This project also includes tests:
 
     make test_server                            Runs aggregation server tests. 
     make test_slow_server                       Runs aggregation server tests that require explicit waiting.
+    make test_content                           Runs content server tests.
+    make test_client                            Run get client tests.
     make test_http                              Runs tests that involve HTTP helpers.
     make test_atom                              Runs tests that involve Atom helpers.
 

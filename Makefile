@@ -42,7 +42,7 @@ endif
 
 
 #*** Tests ***
-test_class_flag=-cp "target/classes/:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar"
+test_class_flag=-cp "target/classes/:target/test-classes:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar"
 compile_test=javac $(test_class_flag) -d target/test-classes/
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
@@ -52,25 +52,37 @@ test_http: compile_test_http
 	@$(run_test) http.HTTPRequestReaderTest
 	@$(run_test) http.HTTPResponseWriterTest
 
-compile_test_http: compile_http src/test/java/http/*.java
-	@$(compile_test) src/test/java/http/*.java
-
 test_server: compile_test_server
 	$(run_test) server.AggregationStorageManagerTest
 
 test_slow_server: compile_test_server
 	$(run_test) server.AggregationStorageManagerSlowTest
 
-compile_test_server: compile_server src/test/java/server/*.java
-	@$(compile_test) src/test/java/server/*.java
-
 test_atom: compile_test_atom
 	$(run_test) atom.TextToAtomParserTest
 	$(run_test) atom.AtomParserTest
 
+test_client: compile_test_client
+	$(run_test) client.GETClientTest
+
+test_content: compile_test_content
+	$(run_test) content.ContentServerTest
+
+#***Test Compliation***
+compile_test_http: compile_http src/test/java/http/*.java
+	@$(compile_test) src/test/java/http/*.java
+
+compile_test_server: compile_server src/test/java/server/*.java
+	@$(compile_test) src/test/java/server/*.java
+
 compile_test_atom: compile_atom src/test/java/atom/*.java
 	@$(compile_test) src/test/java/atom/*.java 
 
+compile_test_client: compile_client src/test/java/client/*.java
+	@$(compile_test) src/test/java/client/*.java
+
+compile_test_content: compile_content src/test/java/content/*.java
+	@$(compile_test) src/test/java/content/*.java
 
 #***Compliation***
 compile_client: src/main/java/client/*java compile_http compile_atom
