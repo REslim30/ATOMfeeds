@@ -53,22 +53,23 @@ test_http: compile_test_http
 	@$(run_test) http.HTTPResponseWriterTest
 
 test_server: compile_test_server
-	$(run_test) server.AggregationStorageManagerTest
-	$(run_test) server.LamportClockTest
+	@$(run_test) server.AggregationStorageManagerTest
+	@$(run_test) server.LamportClockTest
+	@$(run_test) server.AggregationResponderThreadTest
 
 test_slow_server: compile_test_server
-	# $(run_test) server.AggregationStorageManagerSlowTest
-	$(run_test) server.AggregationDeleterThreadTest
+	@$(run_test) server.AggregationStorageManagerSlowTest
+	@$(run_test) server.AggregationDeleterThreadTest
 
 test_atom: compile_test_atom
-	$(run_test) atom.TextToAtomParserTest
-	$(run_test) atom.AtomParserTest
+	@$(run_test) atom.TextToAtomParserTest
+	@$(run_test) atom.AtomParserTest
 
 test_client: compile_test_client
-	$(run_test) client.GETClientTest
+	@$(run_test) client.GETClientTest
 
 test_content: compile_test_content
-	$(run_test) content.ContentServerTest
+	@$(run_test) content.ContentServerTest
 
 #***Test Compliation***
 compile_test_http: compile_http src/test/java/http/*.java
