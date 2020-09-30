@@ -66,6 +66,7 @@ The following project follows the Maven project directory structure:
 I used the following external libraries:
     
     Junit          -> for unit tests.
+    Mockito        -> for mocks during tests
     sqlite-jdbc    -> for maintaining feeds.
 
 ### Note on lamport clocks
