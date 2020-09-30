@@ -1,6 +1,5 @@
 package client;
 
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -19,10 +18,12 @@ import http.*;
  * Gives user controls via stdin
  * 
  * Supports persistent connections.
+ *
+ * Some methods are set to protected for testing purposes only
 */
 public class GETClient {
-    private static long lamportClock = 0;
-    private static String resource = null;
+    protected static long lamportClock = 0;
+    protected static String resource = null;
 
     public static void main(String[] args) {
         
@@ -45,8 +46,6 @@ public class GETClient {
             System.out.println("Resource unspecified. Resource set to '/'");
             resource = "/";
         }
-
-
 
         //Connect to host
         System.out.println("Connecting to " + hostName + ':' + portNumber);
@@ -71,7 +70,7 @@ public class GETClient {
 
     //Enters a persistent connection with the host
     //Allows user various actions
-    private static void enterConnection(BufferedReader in, PrintWriter out, String hostName) {
+    protected static void enterConnection(BufferedReader in, PrintWriter out, String hostName) {
         try (Scanner stdIn = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\nPlease enter:");
@@ -110,7 +109,7 @@ public class GETClient {
     }
 
     //Sends a basic HTTP request
-    private static void sendRequest(PrintWriter out, String hostName) throws IOException {
+    protected static void sendRequest(PrintWriter out, String hostName) throws IOException {
             out.print("GET " + resource + " HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
             out.print("User-Agent: ATOMGETClient/1/0\r\n");
@@ -127,7 +126,7 @@ public class GETClient {
     //And prints to stdin
     //Returns false if server wants to close connection
     //Also updates lamportClock value
-    private static boolean receiveResponse(BufferedReader in) throws IOException {
+    protected static boolean receiveResponse(BufferedReader in) throws IOException {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
         printResponse(response.getBody());
@@ -148,7 +147,7 @@ public class GETClient {
     //Throws an SAXException on invalid XML
     //Throws an IOException on any IO errors
     //Assumes aggregated atom documents are separated by newline characters
-    private static void printResponse(String body) {
+    protected static void printResponse(String body) {
         if (body == null) {
             return;
         }
@@ -158,8 +157,7 @@ public class GETClient {
                  while (scanner.hasNextLine()) {
                      String line = scanner.nextLine();
                      atomDocument.append(line);
-                     atomDocument.append("\n");
-                     if (line.matches("</feed>$"))
+                     if (line.matches(".*</feed>$"))
                          break;
                  }
 
@@ -182,7 +180,7 @@ public class GETClient {
     }
 
     //Logs a response with lamportClock
-    private static void log(String input) {
+    protected static void log(String input) {
         System.out.println("Lamport Clock = " + Long.toString(lamportClock) + "    ->   " + input);
     }
 
