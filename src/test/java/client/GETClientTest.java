@@ -11,6 +11,10 @@ import java.util.regex.*;
 
 /**
  * GETClientTest
+ *
+ * Basic Integration Tests for the get client.
+ * More fine grained tests are available as unit tests (for various utiltiy helpers).
+ * These tests just make sure all components work together smoothly and errors are logged
  */
 public class GETClientTest extends GETClient {
 

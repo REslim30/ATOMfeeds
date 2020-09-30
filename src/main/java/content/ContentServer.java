@@ -17,7 +17,7 @@ import atom.TextToAtomParser;
  * Supports persistent connections
  */
 public class ContentServer {
-    private static long lamportClock = 0;
+    protected static long lamportClock = 0;
 
     public static void main(String[] args) {
         //Parse hostname and port number
@@ -99,7 +99,7 @@ public class ContentServer {
     }
 
     //Sends a basic HTTP request
-    private static void sendRequest(PrintWriter out, String hostName, String fileName) {
+    protected static void sendRequest(PrintWriter out, String hostName, String fileName) {
 
         //Open the file and read it in
         BufferedReader file = null;
@@ -116,9 +116,9 @@ public class ContentServer {
             //Send the request
             out.print("PUT /atom.xml HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
-            out.print("User-Agent: ATOMClient/1/0\r\n");
+            out.print("User-Agent: ATOMContentServer/1/0\r\n");
             out.print("Connection: keep-alive\r\n");
-            out.print("Content-Type: application/atom+xml" + "\r\n");
+            out.print("Content-Type: application/atom+xml\r\n");
             out.print("Content-Length: " + Integer.toString(body.length()) + "\r\n");
             out.print("Lamport-Clock: " + Long.toString(lamportClock) + "\r\n"); 
             out.print("\r\n");
@@ -143,9 +143,9 @@ public class ContentServer {
     }
 
     //Receive the response
-    //Print relevant information to stdin
+    //Print relevant information to stdout
     //Returns false if server wants to end the connection
-    private static boolean receiveResponse(BufferedReader in) throws IOException {
+    protected static boolean receiveResponse(BufferedReader in) throws IOException {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
 
