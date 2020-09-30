@@ -6,7 +6,7 @@ package server;
  * A custom counter with atomic operations.
  */
 public class LamportClock {
-      private long value;  
+      private long value = 0;  
       public LamportClock(long value) {
           this.value = value;
       }

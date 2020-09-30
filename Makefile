@@ -54,6 +54,7 @@ test_http: compile_test_http
 
 test_server: compile_test_server
 	$(run_test) server.AggregationStorageManagerTest
+	$(run_test) server.LamportClockTest
 
 test_slow_server: compile_test_server
 	$(run_test) server.AggregationStorageManagerSlowTest
