@@ -19,7 +19,7 @@ public class AggregationDeleterThread extends Thread {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(12*1000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 System.err.println("AggregationDeleterThread was interrupted");
                 e.printStackTrace();

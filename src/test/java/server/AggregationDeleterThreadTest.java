@@ -7,11 +7,14 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
+import org.junit.Before;
 
 import static org.mockito.Mockito.*;
+import java.io.*;
 
 
 public class AggregationDeleterThreadTest {
+
     @Test
     public void callsZeroTimesInNoWait() throws InterruptedException, SQLException {
         //Create mock instance of mockStorageManager
@@ -24,8 +27,10 @@ public class AggregationDeleterThreadTest {
         verify(mockStorageManager, never()).deleteOldFeeds();
     }
 
-    @Test
-    public void callsTwoTimesIn24Seconds() throws InterruptedException, SQLException {
+    // DeleterThread should query every second.
+    // But we should allow for 1 second give or take
+     @Test
+    public void callsAtLeast5TimesIn6Seconds() throws InterruptedException, SQLException {
         //Create mock instance of mockStorageManager
         AggregationStorageManager mockStorageManager = mock(AggregationStorageManager.class);
 
@@ -33,9 +38,9 @@ public class AggregationDeleterThreadTest {
         AggregationDeleterThread thread = new AggregationDeleterThread(mockStorageManager);
         thread.start();
 
-        Thread.sleep(26*1000);
+        Thread.sleep(6*1000);
         //In 26 seconds, mockStorageManager should have been called 2 times
-        verify(mockStorageManager, times(2)).deleteOldFeeds();
+        verify(mockStorageManager, atLeast(5)).deleteOldFeeds();
     }
 
 }

@@ -48,33 +48,36 @@ public class AggregationResponderThread extends Thread {
                     socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream());
         ) {
-            boolean shutdown = false;
-            while (!shutdown) {
+            while (true) {
                 try {
                     reader = new HTTPRequestReader(in);
-                    reader.readRequest();
                     writer = new HTTPResponseWriter(out);
+                    reader.readRequest();
 
                     System.out.println("Message from:" + socket.getRemoteSocketAddress().toString());
 
                     respond(reader, writer);
                     //end connection if client wants to end connection
                     if (reader.getHeader("connection") != null && reader.getHeader("connection").equals("close"))
-                        shutdown = true;
+                        break;
 
                 } catch (SocketTimeoutException se) {
                     //If we've been blocked for 15 seconds, close connection
                     System.err.println("Connection: " + socket.getRemoteSocketAddress().toString() + "  -  15 seconds have elapsed and no request");
                     System.err.println("Closing Connection");
-                    shutdown = true;
+                    break;
                 } catch (IOException ioe) {
                     //Possible HTTP syntax/ atom protocol error
+                    //Or client decides to close connection
                     System.err.println("Connection: " + socket.getRemoteSocketAddress().toString() + "  -  " + ioe.getMessage());
+                    writer.writeResponse(400, "I/O Error - Please ensure your request is a valid HTTP request: " + ioe.getMessage(), lamportClock.incrementAndGet());
+                    break;
                 }             
             }
 
             socket.close();
         } catch (IOException e) {
+            //IOException for getting the connection
             System.err.println("Connection: " + socket.getRemoteSocketAddress().toString() + "  -  " + e.getMessage());
         }
 
