@@ -23,7 +23,6 @@ There are 3 main processes within this system:
 ### Features
 - HTTP persistent requests - produces less overhead per request.
 - ATOM syndication server restores itself on any unexpected crashes. 
-- ATOM syndication server has a keep-alive mechanism. Probes client to ensure they haven't crashed.
 - ATOM syndication server terminates connection if no response in 15 seconds. - Ensures no dead-connections exist.
 - ATOM syndication server restores previous state upon crashes. It uses SQLite which is "highly resistant to corruption" if an application crashes.
 
