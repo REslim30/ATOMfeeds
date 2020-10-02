@@ -49,7 +49,7 @@ This project includes the following tests:
     - Aggregation Server threads. E.g. AggregationDeleterThread.
     - Aggregation Server tests that require explicit waiting.
 - Integration tests. In the form of AggregationResponderThread tests. (these test 1 to 1 connections between clients).
-- Fault tolerance tests. Utilizes bash...
+- Fault tolerance tests. Utilizes bash and curl, to send HTTP request to a server that is programmed to crash. 
 
 ##### How to Run:
 
@@ -59,6 +59,7 @@ This project includes the following tests:
     make test_client                            Run get client tests.
     make test_http                              Runs tests that involve HTTP helpers.
     make test_atom                              Runs tests that involve Atom helpers.
+    make test_fault                             Runs fault tolerance tests. Involving explicit crashing of server.
 
 If you wanted to see these test cases, or add your own test cases see:
 
