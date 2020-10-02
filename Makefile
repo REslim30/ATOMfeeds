@@ -39,7 +39,9 @@ endif
 		sleep 1; \
 	done
 
-
+# Java script to clear the database
+clear_db: compile_server
+	$(run) server.AggregationClearDB
 
 #*** Tests ***
 test_class_flag=-cp "target/classes/:target/test-classes:src/test/resources:target/junit-4.13.jar:target/hamcrest-core-1.3.jar:target/sqlite-jdbc-3.32.3.2.jar:target/mockito-all-1.10.19.jar"
@@ -47,11 +49,11 @@ compile_test=javac $(test_class_flag) -d target/test-classes/
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
 test_all:
-	make test_http
-	make test_server
-	make test_atom
-	make test_client
-	make test_content
+	make -s test_http
+	make -s test_server
+	make -s test_atom
+	make -s test_client
+	make -s test_content
 
 test_http: compile_test_http
 	@$(run_test) http.URLParserTest
@@ -78,6 +80,7 @@ test_client: compile_test_client
 test_content: compile_test_content
 	@$(run_test) content.ContentServerTest
 
+# Extra level of redirection to suppress weird output
 test_fault: 
 	@make -s test_fault_actual
 test_fault_actual:
