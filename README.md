@@ -10,9 +10,6 @@ There are 3 main processes within this system:
 1. AggregationServer
 ```
     The ATOM syndication server that saves PUT requests, and delivers GET requests.
-        Restores itself on any unexpected crashes.
-        Probes client to ensure they haven't crashed
-        Terminates connection if no response in 15 seconds.
 ```
 2. ContentServer
 ```
@@ -22,6 +19,13 @@ There are 3 main processes within this system:
 ```
     The client that sends GET requests to a web-server.
 ```
+
+### Features
+- HTTP persistent requests - produces less overhead per request.
+- ATOM syndication server restores itself on any unexpected crashes. 
+- ATOM syndication server has a keep-alive mechanism. Probes client to ensure they haven't crashed.
+- ATOM syndication server terminates connection if no response in 15 seconds. - Ensures no dead-connections exist.
+- ATOM syndication server restores previous state upon crashes. It uses SQLite which is "highly resistant to corruption" if an application crashes.
 
 ### How to run
 All processes should be run from the main parent directory (Where this README.md is located) using the provided make commands:
@@ -35,8 +39,20 @@ If you wanted to add extra files for the Content server add a text based file to
     src/main/resources/content
 
 
-### How to test
-This project also includes tests:
+### Testing
+This project includes the following tests:
+- Unit tests for:
+    - HTTP utility classes.
+    - Atom utility classes.
+    - Content Server.
+    - GET client.
+    - Aggregation Server helpers. E.g. LamportClock thread safety tests.
+    - Aggregation Server threads. E.g. AggregationDeleterThread.
+    - Aggregation Server tests that require explicit waiting.
+- Integration tests. In the form of AggregationResponderThread tests. (these test 1 to 1 connections between clients).
+- Fault tolerance tests. Utilizes bash...
+
+##### How to Run:
 
     make test_server                            Runs aggregation server tests. 
     make test_slow_server                       Runs aggregation server tests that require explicit waiting.
