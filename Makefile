@@ -46,6 +46,13 @@ test_class_flag=-cp "target/classes/:target/test-classes:src/test/resources:targ
 compile_test=javac $(test_class_flag) -d target/test-classes/
 run_test=java $(test_class_flag) org.junit.runner.JUnitCore
 
+test_all:
+	make test_http
+	make test_server
+	make test_atom
+	make test_client
+	make test_content
+
 test_http: compile_test_http
 	@$(run_test) http.URLParserTest
 	@$(run_test) http.HTTPResponseReaderTest
@@ -70,6 +77,11 @@ test_client: compile_test_client
 
 test_content: compile_test_content
 	@$(run_test) content.ContentServerTest
+
+test_fault: 
+	@make -s test_fault_actual
+test_fault_actual:
+	@./src/test/shell/fault_testing.sh
 
 #***Test Compliation***
 compile_test_http: compile_http src/test/java/http/*.java
