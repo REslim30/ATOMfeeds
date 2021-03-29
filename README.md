@@ -2,8 +2,6 @@
 ###### By a1742494 - Huy Gia Do Vu
 An Atom syndication system communicating between eachother using HTTP/1.1 (RFC 7230) persistent connections that support a subset of Atom elements (defined as per RFC-4287 and the assignment specification). Written in Java 8.
 
-*The following document has been written in markdown if that helps. If not, you might want to turn on text wrapping.*
-
 ### How it works
 There are 3 main processes within this system:
 
