@@ -1,0 +1,5 @@
+title:generic Title
+updated:wowsers
+id:5%412934871239
+link:http://starling.us/cgi-bin/gus_atom_xsl.pl?atom=starling_us_atom.xml!sort_order=Category
+author:baker's delight

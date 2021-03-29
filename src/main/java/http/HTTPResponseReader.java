@@ -1,10 +1,16 @@
-package main.java.http;
+package http;
 
 import java.io.*;
 import java.util.*;
 import java.lang.StringBuilder;
 
-//Reads in a single HTTP response
+/**
+ * HTTPResponseReader
+ * 
+ * Utility class for reading in a single HTTP response message
+ * Takes in a BufferedReader which should hold the HTTP request to be parsed
+ * Throws an IOException on any invalid HTTP errors
+ */
 public class HTTPResponseReader {
     private BufferedReader in;
 
@@ -16,55 +22,74 @@ public class HTTPResponseReader {
         this.in = in;
         headers = new HashMap<String, String>();
     }
-
-    public void readResponse() {
-        try {
-            parseStatusLine();
-            parseHeaders();
-            parseBody();
-        } catch (IOException e) {
-            System.err.println("HTTPResponseReader: Error in reading response.:");
-            System.err.println(e.toString());
-        } 
+    public void readResponse() throws IOException {
+        parseStatusLine();
+        parseHeaders();
+        parseBody();
     }
 
     //Parses the status line of the response
     //Throws an IOException in a bad response
     private void parseStatusLine() throws IOException {
         String inputLine = in.readLine();
-        statusLine = inputLine.split(" ");
-        if (statusLine.length != 3) 
-            throw new RuntimeException("Status line should have 3 segments. Current Status line: " + inputLine);
+        if (inputLine == null)
+            throw new IOException("Seem to have lost connection");
+
+        statusLine = new String[3];
+
+        //Parses StatusLine
+        int prevSpace = 0;
+        int curSpace = inputLine.indexOf(' ');
+        if (curSpace == -1) 
+            throw new IOException("Unkown Status Line: " + inputLine);
+        
+        statusLine[0] = inputLine.substring(prevSpace, curSpace);
+
+        prevSpace = curSpace + 1;
+        curSpace = inputLine.indexOf(' ', prevSpace);
+        if (curSpace == -1) 
+            throw new IOException("Unkown Status Line: " + inputLine);
+
+        statusLine[1] = inputLine.substring(prevSpace, curSpace);
+        statusLine[2] = inputLine.substring(curSpace+1);
+
 
         if (!statusLine[0].matches("^HTTP.*")) 
-            throw new RuntimeException("Unknown protocol:" + statusLine[0]);
+            throw new IOException("Unknown protocol:" + statusLine[0]);
 
         if (!statusLine[1].matches("\\d\\d\\d"))
-            throw new RuntimeException("Unknown status code: " + statusLine[1]);
+            throw new IOException("Unknown status code: " + statusLine[1]);
+        
     }
 
     //Parses the header fields of the response
     //Assumes headers are delimited by ': '
+    //Is case insensitive
     private void parseHeaders() throws IOException {
         String inputLine;
-        while (!(inputLine = in.readLine()).isEmpty()) {
+        while ((inputLine = in.readLine()) != null && !inputLine.isEmpty()) {
             int delim = inputLine.indexOf(": ");
             headers.put(inputLine.substring(0, delim).toLowerCase(), inputLine.substring(delim+2));
         }
+        if (inputLine == null)
+            throw new IOException("Seem to have lost connection");
     }
 
     //Parses the body fields of the response
     //Does not support anything other than text
     //Or application/xml+atom
     private void parseBody() throws IOException {
-        StringBuilder bodyBuilder = new StringBuilder();
-
         int size = Integer.parseInt(headers.getOrDefault("content-length", "0"));
-
-        for (int i=0; i<size; i++) {
-            bodyBuilder.append((char)in.read());
+        
+        char[] charBuf = new char[size];
+        if (in.read(charBuf, 0, size) < size) {
+            throw new IOException("Seem to have lost connection");
         }
-        body = bodyBuilder.toString();
+        if (size == 0) {
+            body = null;
+        } else {
+            body = new String(charBuf);
+        }
     }
 
     //Returns a string representation of the response
@@ -80,6 +105,7 @@ public class HTTPResponseReader {
     }
 
     //Returns the current status code.
+    //Throws RuntimeException if statusLine is null
     public int getStatusCode() {
         if (statusLine == null || statusLine.length != 3) 
             throw new RuntimeException("HTTPResponseReader: tried to getStatusCode but no statusLine available");
@@ -88,6 +114,7 @@ public class HTTPResponseReader {
     }
 
     //Returns the current status message.
+    //Throws RuntimeException if statusMsg is null
     public String getStatusMsg() {
         if (statusLine == null) 
             throw new RuntimeException("Tried to getStatusMsg but invalid statusLine");
@@ -96,10 +123,8 @@ public class HTTPResponseReader {
     }
 
     //Returns the body of the message
+    //Returns null if body is unset
     public String getBody() {
-        if (body == null) 
-            throw new RuntimeException("Tried to getBody but body is null");
-        
         return body;
     }
 

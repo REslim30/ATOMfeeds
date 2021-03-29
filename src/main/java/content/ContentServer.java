@@ -1,12 +1,24 @@
-package main.java.content;
+package content;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.System;
-import main.java.http.*;
+import http.*;
+import atom.TextToAtomParser;
 
+
+/**
+ * ContentServer
+ * 
+ * Sends an ATOM document to a web-server via a HTTP PUT request.
+ * Gives user controls via stdin
+ * 
+ * Supports persistent connections
+ */
 public class ContentServer {
+    protected static long lamportClock = 0;
+
     public static void main(String[] args) {
         //Parse hostname and port number
         if (args.length != 2) {
@@ -15,11 +27,14 @@ public class ContentServer {
             System.exit(1);
         }
 
-        //TODO: Show user error when hostName/PortNumber is invalild
         URL url = URLParser.parseURL(args[0]);
         String hostName = url.getHost();
         int portNumber = url.getPort();
         String fileName = args[1];
+        if (portNumber == -1) {
+            System.out.println("Port number unspecified, port number is now set to 4567");
+            portNumber = 4567;
+        }
 
         //Connect to host
         System.out.println("Connecting to:" + hostName + ':' + portNumber);
@@ -60,46 +75,52 @@ public class ContentServer {
                         if (out.checkError()) 
                             return;
                         
-                        System.out.println("Sending PUT request");
+                        log("Sending PUT request");
+
+                        lamportClock++;
                         sendRequest(out, hostName, fileName);
 
-                        System.out.println("Server sent back:");
+                        log("Receiving Response: ");
                         if (!receiveResponse(in)) {
-                            System.out.println("Server wants to close connection");
-                            System.out.println("closing connection");
+                            log("Server wants to close connection");
+                            log("closing connection");
                             return;
                         }
                         break;
                     default:
                         System.out.println("Invalid Input");
                         break;
-                }
+                    
+                } 
             }
+        } catch (IOException e) {
+            System.err.println("Error while managing connection   -   " + e.getMessage());
         }
     }
 
     //Sends a basic HTTP request
-    private static void sendRequest(PrintWriter out, String hostName, String fileName) {
-        //First read in a file
-        try (BufferedReader file = new BufferedReader(
-                                        new InputStreamReader(
-                                            ClassLoader.getSystemClassLoader()
-                                                .getResourceAsStream(fileName)))) {
-            String line;
-            StringBuilder bodyBuilder = new StringBuilder();
-            while ((line = file.readLine()) != null)  {
-               bodyBuilder.append(line); 
-               bodyBuilder.append('\n');
-            }
-            String body = bodyBuilder.toString();
+    protected static void sendRequest(PrintWriter out, String hostName, String fileName) {
+
+        //Open the file and read it in
+        BufferedReader file = null;
+        try {
+            InputStream fileStream = ClassLoader.getSystemClassLoader().getResourceAsStream("content/" + fileName);
+            if (fileStream == null) 
+                throw new FileNotFoundException();
+
+            file = new BufferedReader(new InputStreamReader(fileStream));
+
+            TextToAtomParser atomParser = new TextToAtomParser(file);
+            String body = atomParser.parseAtom();
             
             //Send the request
             out.print("PUT /atom.xml HTTP/1.1\r\n");
             out.print("Host: " + hostName + "\r\n");
-            out.print("User-Agent: ATOMClient/1/0\r\n");
+            out.print("User-Agent: ATOMContentServer/1/0\r\n");
             out.print("Connection: keep-alive\r\n");
-            out.print("Content-Type: application/atom+xml" + "\r\n");
+            out.print("Content-Type: application/atom+xml\r\n");
             out.print("Content-Length: " + Integer.toString(body.length()) + "\r\n");
+            out.print("Lamport-Clock: " + Long.toString(lamportClock) + "\r\n"); 
             out.print("\r\n");
             out.print(body);
             out.flush();
@@ -109,19 +130,39 @@ public class ContentServer {
             System.exit(1);
         } catch (IOException ioe) {
             System.err.println("Error in reading file: " + ioe.toString());
+        } finally {
+            //Ensure that file is closed
+            try {
+                if (file != null)
+                    file.close();
+            } catch (IOException e) {
+                System.err.println("Error in closing BufferedReader: " + e.toString());
+                e.printStackTrace();
+            }
         }
     }
 
     //Receive the response
-    //Print relevant information to stdin
+    //Print relevant information to stdout
     //Returns false if server wants to end the connection
-    private static boolean receiveResponse(BufferedReader in) {
+    protected static boolean receiveResponse(BufferedReader in) throws IOException {
         HTTPResponseReader response = new HTTPResponseReader(in);
         response.readResponse();
-        System.out.println("Server responds with: " + response.getStatusCode() + " " + response.getStatusMsg());
-        System.out.println("Body: " + response.getBody());
+
+        String lamportClockString = response.getHeader("lamport-clock");
+        if (lamportClockString != null && lamportClockString.matches("\\d*")) {
+            lamportClock = Long.max(lamportClock, Long.parseLong(lamportClockString));
+        }
+
+        log("Server responds with: " + response.getStatusCode() + " " + response.getStatusMsg());
+        log("Body: " + response.getBody());
 
         String connection = response.getHeader("Connection");
         return (connection == null || connection.equals("keep-alive"));
+    }
+
+    //Logs the response with lamport clock
+    private static void log(String input) {
+        System.out.println("Lamport Clock: " + Long.toString(lamportClock) + "    ->    " + input);
     }
 }
