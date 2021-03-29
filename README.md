@@ -104,7 +104,7 @@ Once the server has verified these conditions are true, the server considers the
 
 This was a tradeoff made to reduce the average latency of requests (as it allows for more parallel processing) and also for a sense of fairness.  It would be wasteful and unfair if a valid GET request had to wait for the server to finish parsing and responding to an invalid PUT request. 
 
-In essence, the server ensures logical ordering amongst valid requests, but handles invalid requests in any order. Please let me know if this is unacceptable.
+In essence, the server ensures logical ordering amongst valid requests, but handles invalid requests in any order.
 
 #### Contact Me
 Thanks for looking through my assignment. You can contact me through uni emails or giahuydo99@gmail.com
